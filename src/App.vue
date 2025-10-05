@@ -1,7 +1,10 @@
 <template>
-  <ChatWidget />
+  <ChatBox />
+  <ChatToggle />
 </template>
 
 <script setup>
-import ChatWidget from "./components/ChatWidget.vue";
+import ChatBox from './components/ChatBox.vue'
+import ChatToggle from './components/ChatToggle.vue'
+
 </script>
