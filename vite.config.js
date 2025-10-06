@@ -4,20 +4,12 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue() , tailwindcss()],
-    build: {
-    lib: {
-      entry: "./src/main.js",
-      name: "ChatWidget",
-      fileName: "chat-widget",
-      formats: ["iife"], 
-    },
-    rollupOptions: {
-      output: {
-        globals: {
-          vue: "Vue",
-        },
-      },
-    },
+  plugins: [vue(), tailwindcss()],
+  base: '/chatbot-widget/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'terser',
   },
 })

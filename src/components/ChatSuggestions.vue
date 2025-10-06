@@ -16,19 +16,13 @@
 
 <script setup>
 import { useChatStore } from "../stores/chat";
+import { SUGGESTIONS } from "../constants";
+
 const chat = useChatStore();
-
-const suggestions = [
-  { text: "استفسار", icon: "fa-solid fa-question-circle" },
-  { text: "شكوى", icon: "fa-solid fa-exclamation-triangle" },
-  { text: "اقتراح", icon: "fa-solid fa-lightbulb" },
-  { text: "أخبار الهيئة", icon: "fa-solid fa-newspaper" },
-];
-
+const suggestions = SUGGESTIONS;
 
 function handleSuggestion(text) {
-  if (chat.showWelcome) chat.showWelcome = false; 
-  chat.sendMessage(text); 
+  chat.sendMessage(text);
 }
 </script>
 

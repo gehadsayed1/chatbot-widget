@@ -3,25 +3,42 @@ import { ref } from "vue";
 
 export const useChatStore = defineStore("chat", () => {
   const isOpen = ref(false);
-  const messages = ref([
+  const messages = ref([]);
 
-  ]);
-
-  const toggleChat = () => (isOpen.value = !isOpen.value);
-  const closeChat = () => (isOpen.value = false);
-
-  const sendMessage = (text) => {
-    if (!text.trim()) return;
-    messages.value.push({ from: "user", text });
-  
-    setTimeout(() => {
-      messages.value.push({
-        from: "bot",
-        text: "شكراً لتواصلك معنا، سيتم الرد عليك في أقرب وقت ممكن ⏰",
-      });
-    }, 800);
-   
+  const toggleChat = () => {
+    isOpen.value = !isOpen.value;
   };
 
-  return { isOpen, messages, toggleChat, closeChat, sendMessage };
+  const closeChat = () => {
+    isOpen.value = false;
+  };
+
+  const openChat = () => {
+    isOpen.value = true;
+  };
+
+  const sendMessage = (text) => {
+    const trimmedText = text?.trim();
+    if (!trimmedText) return;
+    
+    messages.value.push({ 
+      from: "user", 
+      text: trimmedText,
+      timestamp: Date.now()
+    });
+  };
+
+  const clearMessages = () => {
+    messages.value = [];
+  };
+
+  return { 
+    isOpen, 
+    messages, 
+    toggleChat, 
+    closeChat, 
+    openChat,
+    sendMessage,
+    clearMessages
+  };
 });

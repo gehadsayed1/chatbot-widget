@@ -1,31 +1,38 @@
 <template>
   <footer
     class="chat-footer bg-white border-t border-gray-100 p-4 flex items-center gap-3"
+    role="contentinfo"
   >
-   
     <input
       v-model="message"
+      ref="messageInput"
       dir="rtl"
       type="text"
       placeholder="اكتب رسالتك هنا..."
+      aria-label="حقل إدخال الرسالة"
       class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e]"
       @keyup.enter="handleSend"
     />
 
-
     <button
-      class="w-11 h-11 rounded-full cursor-pointer border text-[#d2961e] hover:text-white border-gray-200 flex items-center justify-center hover:bg-[#d2961e]  transition"
+      type="button"
+      aria-label="تسجيل رسالة صوتية"
+      disabled
+      class="w-11 h-11 rounded-full cursor-not-allowed border text-gray-400 border-gray-200 flex items-center justify-center transition opacity-50"
+      title="الرسائل الصوتية غير متاحة حالياً"
     >
-      <i class="fa-solid fa-microphone "></i>
+      <i class="fa-solid fa-microphone" aria-hidden="true"></i>
     </button>
 
-    
     <button
+      type="button"
       @click="handleSend"
-      class="flex items-center gap-2 cursor-pointer bg-gradient-to-br from-[#d2961e] to-[#b07f14] text-white font-semibold px-4 py-2 rounded-full shadow hover:shadow-lg transition"
+      aria-label="إرسال الرسالة"
+      :disabled="!message.trim()"
+      class="flex items-center gap-2 cursor-pointer bg-gradient-to-br from-[#d2961e] to-[#b07f14] text-white font-semibold px-4 py-2 rounded-full shadow hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <span>إرسال</span>
-      <i class="fa-solid fa-paper-plane"></i>
+      <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
     </button>
   </footer>
 </template>
@@ -33,10 +40,11 @@
 <script setup>
 import { ref, nextTick } from "vue";
 import { useChatStore } from "../stores/chat";
+import { CHAT_CONFIG } from "../constants";
 
 const chat = useChatStore();
 const message = ref("");
-
+const messageInput = ref(null);
 
 const scrollToBottom = async () => {
   await nextTick();
@@ -44,25 +52,27 @@ const scrollToBottom = async () => {
   if (chatContainer) {
     chatContainer.scrollTo({
       top: chatContainer.scrollHeight,
-      behavior: "smooth",
+      behavior: CHAT_CONFIG.SCROLL_BEHAVIOR,
     });
   }
 };
 
-
 const handleSend = async () => {
   if (!message.value.trim()) return;
+  
   chat.sendMessage(message.value);
   message.value = "";
   await scrollToBottom();
+  
+  // Focus back to input after sending
+  await nextTick();
+  messageInput.value?.focus();
 };
-
 
 const handleSuggestion = async (text) => {
   chat.sendMessage(text);
   await scrollToBottom();
 };
-
 
 defineExpose({
   handleSuggestion,
