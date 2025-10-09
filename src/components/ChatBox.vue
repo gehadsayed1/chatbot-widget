@@ -5,7 +5,9 @@
     role="dialog"
     aria-label="نافذة الدردشة"
     aria-modal="true"
-    class="fixed bottom-25 right-6 z-[9999] h-[85vh] w-[35vw] max-w-[500px] bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
+    class="fixed z-[9999] bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col
+           right-4 bottom-24 w-[92vw] h-[78vh]
+           sm:right-6 sm:bottom-25 sm:w-[35vw] sm:h-[85vh] sm:max-w-[500px]"
   >
     <ChatHeader />
     <div class="flex-1 relative overflow-hidden">

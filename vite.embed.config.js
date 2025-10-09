@@ -16,9 +16,10 @@ export default defineConfig({
     emptyOutDir: false,
     rollupOptions: {
       output: {
-        assetFileNames: (chunkInfo) => {
-          if (chunkInfo.name && chunkInfo.name.endsWith('.css')) return 'widget.css';
-          return 'assets/[name][extname]';
+        assetFileNames: (assetInfo) => {
+          const name = assetInfo && assetInfo.name ? assetInfo.name : ''
+          if (name.includes('.css')) return 'widget.css'
+          return 'assets/[name][extname]'
         },
       },
     },
