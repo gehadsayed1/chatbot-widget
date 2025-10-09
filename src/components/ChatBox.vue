@@ -23,6 +23,8 @@
     </div>
     <ChatSuggestions />
     <ChatFooter />
+    <!-- Voice overlay covering the whole chat box -->
+    <VoiceCall v-if="chat.isVoiceCallOpen" />
   </div>
 </template>
 
@@ -32,6 +34,7 @@ import ChatHeader from "./ChatHeader.vue";
 import ChatMessages from "./ChatMessages.vue";
 import ChatSuggestions from "./ChatSuggestions.vue";
 import ChatFooter from "./ChatFooter.vue";
+import VoiceCall from "./VoiceCall.vue";
 import { useChatStore } from "../stores/chat";
 
 const chat = useChatStore();

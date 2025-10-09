@@ -64,7 +64,7 @@
           class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.4s]"
         ></span>
       </div>
-    </div>
+      </div>
     </div>
   </main>
 </template>
@@ -80,11 +80,11 @@ const isBotTyping = ref(false);
 let botTypingTimeout = null;
 
 const scrollToBottom = async () => {
-  await nextTick();
-  const chatContainer = document.getElementById("chatMessages");
-  if (chatContainer) {
-    chatContainer.scrollTo({
-      top: chatContainer.scrollHeight,
+    await nextTick();
+    const chatContainer = document.getElementById("chatMessages");
+    if (chatContainer) {
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
       behavior: CHAT_CONFIG.SCROLL_BEHAVIOR,
     });
   }

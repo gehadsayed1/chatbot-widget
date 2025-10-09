@@ -4,6 +4,7 @@ import { ref } from "vue";
 export const useChatStore = defineStore("chat", () => {
   const isOpen = ref(false);
   const messages = ref([]);
+  const isVoiceCallOpen = ref(false);
 
   const toggleChat = () => {
     isOpen.value = !isOpen.value;
@@ -32,13 +33,24 @@ export const useChatStore = defineStore("chat", () => {
     messages.value = [];
   };
 
+  const openVoiceCall = () => {
+    isVoiceCallOpen.value = true;
+  };
+
+  const closeVoiceCall = () => {
+    isVoiceCallOpen.value = false;
+  };
+
   return { 
     isOpen, 
     messages, 
+    isVoiceCallOpen,
     toggleChat, 
     closeChat, 
     openChat,
     sendMessage,
-    clearMessages
+    clearMessages,
+    openVoiceCall,
+    closeVoiceCall
   };
 });

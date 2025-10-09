@@ -16,10 +16,10 @@
 
     <button
       type="button"
-      aria-label="تسجيل رسالة صوتية"
-      disabled
-      class="w-11 h-11 rounded-full cursor-not-allowed border text-gray-400 border-gray-200 flex items-center justify-center transition opacity-50"
-      title="الرسائل الصوتية غير متاحة حالياً"
+      aria-label="بدء مكالمة صوتية"
+      @click="startVoiceCall"
+      class="w-11 h-11 rounded-full cursor-pointer border text-[#d2961e] border-gray-200 flex items-center justify-center transition hover:bg-[#d2961e] hover:text-white"
+      title="بدء مكالمة صوتية"
     >
       <i class="fa-solid fa-microphone" aria-hidden="true"></i>
     </button>
@@ -74,6 +74,9 @@ const handleSuggestion = async (text) => {
   await scrollToBottom();
 };
 
+const startVoiceCall = () => {
+  chat.openVoiceCall();
+};
 defineExpose({
   handleSuggestion,
   scrollToBottom
