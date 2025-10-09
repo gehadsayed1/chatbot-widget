@@ -15,6 +15,29 @@ function ensureAssets() {
     link.referrerPolicy = 'no-referrer'
     document.head.appendChild(link)
   }
+
+  // Ensure widget.css is loaded next to widget.js automatically
+  const hasWidgetCss = Array.from(document.styleSheets).some(s => s.href && s.href.includes('widget.css'))
+  if (!hasWidgetCss) {
+    // Try to infer base URL from the currently executing script
+    let scriptEl = document.currentScript
+    if (!scriptEl) {
+      const scripts = Array.from(document.getElementsByTagName('script'))
+      scriptEl = scripts.find(s => s.src && /widget\.js(\?|$)/.test(s.src)) || scripts[scripts.length - 1]
+    }
+    if (scriptEl && scriptEl.src) {
+      try {
+        const url = new URL(scriptEl.src, window.location.href)
+        url.pathname = url.pathname.replace(/[^/]*$/, 'widget.css')
+        const cssLink = document.createElement('link')
+        cssLink.rel = 'stylesheet'
+        cssLink.href = url.toString()
+        document.head.appendChild(cssLink)
+      } catch (_) {
+        // ignore
+      }
+    }
+  }
 }
 
 function createContainer() {
@@ -25,7 +48,7 @@ function createContainer() {
     document.body.appendChild(root)
   }
   const appDiv = document.createElement('div')
-  appDiv.id = 'app'
+  appDiv.id = 'smart-chatbot-app'
   root.appendChild(appDiv)
   return appDiv
 }
