@@ -21,9 +21,15 @@ import { SUGGESTIONS } from "../constants";
 const chat = useChatStore();
 const suggestions = SUGGESTIONS;
 
-function handleSuggestion(text) {
+ function handleSuggestion(text) {
+  if (text === 'اتصل بنا') {
+    // فتح الاتصال مباشرة
+    window.location.href = 'tel:19591';
+    chat.sendMessage('اتصال بالخط الساخن 19591');
+    return;
+  }
   chat.sendMessage(text);
-}
+ }
 </script>
 
 <style scoped>

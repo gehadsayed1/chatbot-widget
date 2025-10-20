@@ -43,12 +43,11 @@
     <footer class="p-6 flex justify-center">
       <button
         @click="onClose"
-        class="w-44 h-12 bg-red-600 rounded-lg flex items-center justify-center gap-2 text-white font-semibold shadow-md hover:bg-red-700 transition"
+        class="w-14 h-14 rounded-full flex items-center justify-center text-white bg-red-600 shadow-md hover:bg-red-700 transition"
+        aria-label="إنهاء المكالمة"
+        title="إنهاء المكالمة"
       >
-        <svg class="w-6 h-6 rotate-135" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.2.48 2.53.73 3.88.73a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.35.25 2.68.73 3.88a1 1 0 01-.21 1.11l-2.2 2.2z"/>
-        </svg>
-        End Call
+        <i class="fa-solid fa-xmark text-3xl" aria-hidden="true"></i>
       </button>
     </footer>
   </div>

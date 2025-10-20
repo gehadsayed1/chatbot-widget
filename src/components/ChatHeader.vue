@@ -3,10 +3,9 @@
     class="bg-gradient-to-br from-[#d2961e] via-[#b07f14] to-[#8d680f] p-4 text-center relative text-white"
     role="banner"
   >
-    <h1 class="font-bold text-xl">Smart GOEIC</h1>
-    <div class="flex justify-center items-center gap-2 mt-1 text-sm opacity-90" role="status">
-      <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse" aria-hidden="true"></span>
-      <span>نحن متواجدون الآن</span>
+    <div class="flex items-center justify-center gap-3 relative">
+      <img src="../assets/logo2.png" alt="Smart GOEIC" class="h-8 object-contain" />
+      <span class="absolute right-3 top-3 w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse" aria-hidden="true"></span>
     </div>
     <button
       @click="chat.closeChat"

@@ -3,15 +3,15 @@
     class="chat-footer bg-white border-t border-gray-100 p-4 flex items-center gap-3"
     role="contentinfo"
   >
-    <input
+    <textarea
       v-model="message"
       ref="messageInput"
       dir="rtl"
-      type="text"
-      placeholder="اكتب رسالتك هنا..."
+      rows="1"
+      placeholder="اسأل واحنا نرد عليك ..."
       aria-label="حقل إدخال الرسالة"
-      class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e]"
-      @keyup.enter="handleSend"
+      class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e] resize-none max-h-32 overflow-auto"
+      @keydown.enter.exact.prevent="handleSend"
     />
 
     <button
