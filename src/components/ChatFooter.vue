@@ -1,18 +1,19 @@
 <template>
   <footer
-    class="chat-footer bg-white border-t border-gray-100 p-4 flex items-center gap-3"
+    class="chat-footer bg-white border-t border-gray-100 p-2 flex items-center gap-2"
     role="contentinfo"
   >
-    <textarea
-      v-model="message"
-      ref="messageInput"
-      dir="rtl"
-      rows="1"
-      placeholder="اسأل واحنا نرد عليك ..."
-      aria-label="حقل إدخال الرسالة"
-      class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e] resize-none max-h-32 overflow-auto"
-      @keydown.enter.exact.prevent="handleSend"
-    />
+ <textarea
+  v-model="message"
+  ref="messageInput"
+  dir="rtl"
+  rows="1"
+  placeholder="اكتب استفسارك.. وفريق الهيئة جاهز لمساعدتك"
+  aria-label="حقل إدخال الرسالة"
+  class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e] resize-none max-h-32 overflow-auto placeholder:text-sm"
+  @keydown.enter.exact.prevent="handleSend"
+/>
+
 
     <button
       type="button"
