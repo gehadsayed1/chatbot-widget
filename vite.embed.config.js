@@ -1,29 +1,23 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
-  base: '/chatbot-widget/',
+  plugins: [vue()],
+  define: {
+    "process.env": {}, // fix browser process undefined
+  },
   build: {
     lib: {
-      entry: 'src/embed.js',
-      name: 'SmartChatbot',
-      formats: ['iife'],
-      fileName: () => 'widget.js',
+      entry: "src/embed.js",
+      name: "ChatbotWidget",
+      fileName: () => "widget.js",
+      formats: ["iife"],
     },
-    cssCodeSplit: false,
-    emptyOutDir: false,
     rollupOptions: {
+      external: ["vue"],
       output: {
-        assetFileNames: (assetInfo) => {
-          const name = assetInfo && assetInfo.name ? assetInfo.name : ''
-          if (name.includes('.css')) return 'widget.css'
-          return 'assets/[name][extname]'
-        },
+        globals: { vue: "Vue" },
       },
     },
   },
-})
-
-
+});
