@@ -1,5 +1,7 @@
 <template>
-  <div class="px-3 py-2 flex flex-wrap gap-2 bg-white border-t border-gray-100 justify-center">
+  <div
+    class="px-3 py-2 flex flex-wrap gap-2 bg-white border-t border-gray-100 justify-center"
+  >
     <button
       v-for="s in suggestions"
       :key="s.text"
@@ -15,21 +17,65 @@
 </template>
 
 <script setup>
+import { ORG_INFO, SUGGESTIONS } from "../constants";
+import { nextTick } from "vue";
 import { useChatStore } from "../stores/chat";
-import { SUGGESTIONS } from "../constants";
 
 const chat = useChatStore();
 const suggestions = SUGGESTIONS;
 
- function handleSuggestion(text) {
-  if (text === 'اتصل بنا') {
-    // فتح الاتصال مباشرة
-    window.location.href = 'tel:19591';
-    chat.sendMessage('اتصال بالخط الساخن 19591');
+const scrollToBottomLocal = async () => {
+  await nextTick();
+  const chatContainer = document.getElementById("chatMessages");
+  if (chatContainer) {
+    chatContainer.scrollTo({
+      top: chatContainer.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+};
+
+const handleSuggestion = async (text) => {
+  if (text === "اتصل بنا") {
+    chat.messages.push({
+      from: "user",
+      text: "اتصل بنا",
+      timestamp: Date.now(),
+    });
+
+    chat.messages.push({
+      from: "bot",
+      html:  ` <div style="padding: 4px 2px;">
+    <div style="font-weight: 600; margin-bottom: 10px; font-size: 15px;">
+      يمكنك الاتصال:
+    </div>
+
+    <div style="margin-bottom: 12px;">
+      <span style="color:#333;">الخط الساخن:</span>
+      <a href="tel:${ORG_INFO.HOTLINE}" style="color:#b07f14; font-weight:bold; text-decoration:underline; margin-right:6px;">
+        ${ORG_INFO.HOTLINE}
+      </a>
+    </div>
+
+    <div>
+      <span style="color:#333;">رقم الهاتف:</span>
+      <a href="tel:${ORG_INFO.PHONE}" style="color:#b07f14; font-weight:bold; text-decoration:underline; margin-right:6px;">
+        ${ORG_INFO.PHONE}
+      </a>
+    </div>
+  </div>
+`,
+      timestamp: Date.now(),
+    });
+
+    await scrollToBottomLocal();
     return;
   }
+
   chat.sendMessage(text);
- }
+
+  await scrollToBottomLocal();
+};
 </script>
 
 <style scoped>
