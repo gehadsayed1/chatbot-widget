@@ -16,7 +16,9 @@
         class="flex items-start gap-3 relative z-10"
         :class="msg.from === 'user' ? 'justify-end' : ''"
       >
+        <!-- BOT MESSAGE -->
         <template v-if="msg.from === 'bot' && !msg.loading">
+
           <img
             class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-[#d2961e]/30 shadow-sm"
             src="../assets/logo2.png"
@@ -28,7 +30,15 @@
             role="article"
             class="message-bubble from-bot bg-gradient-to-br from-[#fff8e1] to-[#f4e6c2] border border-[#d2961e]/20 text-gray-800 rounded-2xl px-3 py-3 shadow max-w-[80%] break-words whitespace-pre-line"
           >
-            <template v-if="msg.headImage || msg.headCv">
+            <!-- 🛑 خطأ الاتصال -->
+            <template v-if="msg.error">
+              <div class="text-red-600 font-bold text-sm">
+                {{ msg.text }}
+              </div>
+            </template>
+
+            <!-- 🧑‍✈️ رئيس الهيئة -->
+            <template v-else-if="msg.headImage || msg.headCv">
               <div class="text-center">
                 <img
                   :src="msg.headImage"
@@ -61,6 +71,7 @@
               </div>
             </template>
 
+            <!-- 🔗 روابط -->
             <template v-else-if="msg.link">
               <span>{{ msg.text }} </span>
               <a
@@ -73,8 +84,9 @@
               </a>
             </template>
 
+            <!-- 🏢 فروع الهيئة -->
             <template v-else-if="msg.branchCard">
-              <div class="">
+              <div>
                 <div class="text-lg font-bold mb-2">{{ msg.branchName }}</div>
                 <div class="text-sm opacity-80 mb-3 whitespace-pre-line">
                   {{ msg.branchAddress }}
@@ -98,15 +110,20 @@
                 </a>
               </div>
             </template>
+
+            <!-- 📌 كارت HTML للاتصال -->
             <template v-else-if="msg.html">
               <div class="contact-card" v-html="msg.html"></div>
             </template>
+
+            <!-- نص عادي -->
             <template v-else>
               <ReadMore :text="msg.text" :maxChars="220" />
             </template>
           </div>
         </template>
 
+        <!-- USER MESSAGE -->
         <template v-else-if="msg.from === 'user'">
           <div
             role="article"
@@ -124,6 +141,7 @@
         </template>
       </div>
 
+      <!-- Typing Loader -->
       <div
         v-if="chat.messages.some((m) => m.loading)"
         class="flex items-start gap-3 relative z-10"
@@ -138,25 +156,20 @@
           class="bg-gradient-to-br from-[#fff8e1] to-[#f4e6c2] border border-[#d2961e]/20 text-gray-800 rounded-2xl px-4 py-3 shadow flex gap-1"
         >
           <span class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce"></span>
-          <span
-            class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.2s]"
-          ></span>
-          <span
-            class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.4s]"
-          ></span>
+          <span class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.2s]"></span>
+          <span class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.4s]"></span>
         </div>
       </div>
     </div>
   </main>
 </template>
-
 <script setup>
+
+import ChatWelcome from "./ChatWelcome.vue";
 import ReadMore from "./ReadMore.vue";
-import { ref, watch, nextTick, onBeforeUnmount } from "vue";
+import { ref, watch, nextTick } from "vue";
 import { useChatStore } from "../stores/chat";
 import { CHAT_CONFIG } from "../constants";
-import ChatWelcome from "./ChatWelcome.vue";
-
 const chat = useChatStore();
 
 const scrollToBottom = async () => {
@@ -171,8 +184,6 @@ const scrollToBottom = async () => {
 };
 
 watch(() => chat.messages.length, scrollToBottom);
-
-onBeforeUnmount(() => {});
 </script>
 
 <style scoped>

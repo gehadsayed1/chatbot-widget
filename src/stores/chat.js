@@ -47,34 +47,35 @@ export const useChatStore = defineStore("chat", () => {
     );
   };
 
-  const checkLocalAnswer = (text) => {
-    const lower = text.toLowerCase();
+const checkLocalAnswer = (text) => {
+  const lower = text.toLowerCase();
 
-    if (BRANCH_KEYWORDS.some((word) => lower.includes(word))) {
-      return {
-        branchCard: true,
-        branchName: MAIN_BRANCH.NAME,
-        branchTitle: MAIN_BRANCH.TITLE,
-        branchAddress: MAIN_BRANCH.ADDRESS,
-        branchMap: MAIN_BRANCH.MAP,
-        branchLink: MAIN_BRANCH.LINK,
-      };
-    }
+  if (BRANCH_KEYWORDS.some((word) => lower.includes(word))) {
+    return {
+      branchCard: true,
+      branchName: MAIN_BRANCH.NAME,
+      branchTitle: MAIN_BRANCH.TITLE,
+      branchAddress: MAIN_BRANCH.ADDRESS,
+      branchMap: MAIN_BRANCH.MAP,
+      branchLink: MAIN_BRANCH.LINK,
+    };
+  }
 
-    if (HEAD_KEYWORDS.some((word) => lower.includes(word))) {
-      const head = ORG_INFO.HEAD || {};
-      const text = `${head.NAME || ""}\n${head.TITLE || ""}`;
+  if (HEAD_KEYWORDS.some((word) => lower.includes(word))) {
+    const head = ORG_INFO.HEAD || {};
+    const text = `${head.NAME || ""}\n${head.TITLE || ""}`;
 
-      return {
-        headImage: head.IMAGE,
-        headCv: head.CV_URL || head.CV_PATH,
-        headBio: head.BIO_SHORT,
-        text,
-      };
-    }
+    return {
+      headImage: head.IMAGE,
+      headCv: head.CV_URL || head.CV_PATH,
+      headBio: head.BIO_SHORT,
+      text,
+    };
+  }
 
-    return "لا يتوفر جواب  لهذالسؤال";
-  };
+ 
+  return null;
+};
 
   const sendMessage = async (userText) => {
     if (!userText || !userText.toString().trim()) return;
@@ -111,7 +112,11 @@ export const useChatStore = defineStore("chat", () => {
       }
 
       if (!res.ok) {
-        addBotMessage({ text: "حصل خطأ من الخادم، حاول لاحقًا." });
+        addBotMessage({
+          text: "لا يوجد اتصال بالخادم حاليًا، برجاء المحاولة لاحقًا.",
+          error: true,
+        });
+
         return;
       }
 
@@ -134,13 +139,17 @@ export const useChatStore = defineStore("chat", () => {
         addBotMessage({ text: answer });
       }
     } catch (err) {
-      // remove loader if still exists
       if (messages.value[typingIndex]) {
         messages.value.splice(typingIndex, 1);
       }
 
       console.error("sendMessage error:", err);
-      addBotMessage({ text: "خطأ في الاتصال، تأكد من الشبكة." });
+
+      addBotMessage({
+        text: "❌ لا يوجد اتصال بالخادم الآن.\nبرجاء المحاولة لاحقًا.",
+        error: true,
+        timestamp: Date.now(),
+      });
     }
   };
 
