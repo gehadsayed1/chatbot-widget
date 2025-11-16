@@ -215,7 +215,6 @@ function stopRecording() {
 }
 
 function sendAudioData() {
-  // لو بنقفل المحادثة، متبعتش الصوت
   if (isClosing.value) {
     console.log("Closing, not sending audio.");
     return;
