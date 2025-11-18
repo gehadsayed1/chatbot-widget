@@ -59,7 +59,8 @@
 </template>
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { useChatStore } from "../stores/chat";
+import { useChatStore } from '../stores/chat';
+
 
 const chat = useChatStore();
 
