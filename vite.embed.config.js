@@ -1,23 +1,19 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [vue()],
-  define: {
-    "process.env": {}, // fix browser process undefined
-  },
   build: {
     lib: {
-      entry: "src/embed.js",
+      entry: resolve(__dirname, "src/embed.js"),
       name: "ChatbotWidget",
-      fileName: () => "widget.js",
+      fileName: "widget",
       formats: ["iife"],
     },
     rollupOptions: {
-      external: ["vue"],
-      output: {
-        globals: { vue: "Vue" },
-      },
+      // 👉 مهم: ضمّني Vue و Pinia جوا الباندل
+      external: [],
     },
   },
 });

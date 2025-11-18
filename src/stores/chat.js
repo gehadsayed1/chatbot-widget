@@ -146,7 +146,7 @@ const checkLocalAnswer = (text) => {
       console.error("sendMessage error:", err);
 
       addBotMessage({
-        text: "❌ لا يوجد اتصال بالخادم الآن.\nبرجاء المحاولة لاحقًا.",
+        text: "يتعذّر في الوقت الحالي إتمام الاتصال بالخادم.يرجى من سيادتكم إعادة المحاولة لاحقًا.",
         error: true,
         timestamp: Date.now(),
       });

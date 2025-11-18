@@ -19,7 +19,6 @@
     <!-- Content -->
     <main class="flex flex-col items-center justify-center flex-grow p-6">
       <div class="relative flex items-center justify-center">
-        <!-- Pulsing circles behind avatar -->
         <span
           class="absolute inline-flex h-44 w-44 rounded-full bg-[#b5893d]/20 animate-ping"
         ></span>
@@ -30,7 +29,7 @@
           class="absolute inline-flex h-64 w-64 rounded-full bg-[#b5893d]/5 animate-ping [animation-delay:400ms]"
         ></span>
 
-        <!-- Avatar with subtle wave -->
+        <!-- Avatar -->
         <div
           class="w-36 h-36 rounded-full overflow-hidden border-4 border-[#b5893d] shadow-lg wave"
         >
@@ -46,7 +45,6 @@
       </p>
     </main>
 
-  
     <footer class="p-6 flex justify-center">
       <button
         @click="onClose"
@@ -54,20 +52,21 @@
         aria-label="إنهاء المكالمة"
         title="إنهاء المكالمة"
       >
-        <i class="fa-solid fa-xmark text-3xl" aria-hidden="true"></i>
+        <i class="fa-solid fa-xmark text-3xl"></i>
       </button>
     </footer>
   </div>
 </template>
 <script setup>
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useChatStore } from "../stores/chat";
-import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const chat = useChatStore();
 
 const isRecording = ref(false);
 const isSpeaking = ref(false);
-const isClosing = ref(false); // علشان نعرف لو بنقفل
+const isClosing = ref(false);
+
 let mediaRecorder = null;
 let audioChunks = [];
 let websocket = null;
@@ -77,11 +76,11 @@ let silenceTimer = null;
 let stream = null;
 
 const WEBSOCKET_URL = "wss://r6suex81bgxkht-8888.proxy.runpod.net/api/ws/voice";
-const SILENCE_DURATION = 1000; // 1 second of silence
-const SOUND_THRESHOLD = 30; // Threshold for detecting sound
+const SILENCE_DURATION = 1000;
+const SOUND_THRESHOLD = 30;
 
 function onClose() {
-  isClosing.value = true; // نعلم إننا بنقفل
+  isClosing.value = true;
   stopRecording();
   if (silenceTimer) clearTimeout(silenceTimer);
   if (websocket) websocket.close();
@@ -103,7 +102,6 @@ function startRecording() {
         audioContext.resume();
       }
 
-      // Setup analyser for voice activity detection
       analyser = audioContext.createAnalyser();
       const source = audioContext.createMediaStreamSource(stream);
       source.connect(analyser);
@@ -121,7 +119,6 @@ function startRecording() {
 
       mediaRecorder.onstop = sendAudioData;
 
-      // Start monitoring audio levels
       detectSilence();
     })
     .catch((err) => {
@@ -140,31 +137,24 @@ function detectSilence() {
 
     analyser.getByteFrequencyData(dataArray);
 
-    // Calculate average volume
     const average =
       dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
 
     if (average > SOUND_THRESHOLD) {
-      // User is speaking
       isSpeaking.value = true;
-
-      // Clear any existing silence timer
       if (silenceTimer) {
         clearTimeout(silenceTimer);
         silenceTimer = null;
       }
     } else if (isSpeaking.value) {
-      // User stopped speaking, start silence timer
       if (!silenceTimer) {
         silenceTimer = setTimeout(() => {
-          // 1 second of silence detected
           isSpeaking.value = false;
           stopAndSendRecording();
         }, SILENCE_DURATION);
       }
     }
 
-    // Continue monitoring
     requestAnimationFrame(checkAudio);
   };
 
@@ -174,13 +164,21 @@ function detectSilence() {
 function stopAndSendRecording() {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
-    // Don't stop the stream, keep recording for next turn
+
     setTimeout(() => {
       if (isRecording.value && !isClosing.value) {
         audioChunks = [];
-        mediaRecorder.start();
+        try {
+          mediaRecorder.start();
+        } catch (e) {
+          setTimeout(() => {
+            try {
+              mediaRecorder.start();
+            } catch (_) {}
+          }, 150);
+        }
       }
-    }, 100);
+    }, 200);
   }
 }
 
@@ -192,7 +190,6 @@ function stopRecording() {
     stream.getTracks().forEach((track) => track.stop());
   }
 
-  // Reset all variables
   isRecording.value = false;
   isSpeaking.value = false;
   mediaRecorder = null;
@@ -200,30 +197,24 @@ function stopRecording() {
   analyser = null;
   audioChunks = [];
 
-  // Close audio context
   if (audioContext && audioContext.state !== "closed") {
     audioContext
       .close()
       .then(() => {
         audioContext = null;
       })
-      .catch((err) => {
-        console.error("Error closing audio context:", err);
+      .catch(() => {
         audioContext = null;
       });
   }
 }
 
 function sendAudioData() {
-  if (isClosing.value) {
-    console.log("Closing, not sending audio.");
-    return;
-  }
+  if (isClosing.value) return;
 
   const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
   if (audioBlob.size < 500) {
-    console.log("No audio recorded.");
     return;
   }
 
@@ -231,10 +222,15 @@ function sendAudioData() {
 }
 
 function connectWebSocket(audioBlob) {
+  if (websocket && websocket.readyState !== WebSocket.CLOSED) {
+    try {
+      websocket.close();
+    } catch (_) {}
+  }
+
   websocket = new WebSocket(WEBSOCKET_URL);
 
   websocket.onopen = () => {
-    console.log("WS Connected");
     websocket.send(audioBlob);
   };
 
@@ -242,17 +238,21 @@ function connectWebSocket(audioBlob) {
     const data = JSON.parse(event.data);
 
     if (data.type === "full_response") {
-      console.log("User said:", data.transcript);
-      console.log("Bot said:", data.answer);
+      chat.messages.push({
+        from: "user",
+        text: data.transcript,
+        timestamp: Date.now(),
+      });
+
+      chat.messages.push({
+        from: "bot",
+        text: data.answer,
+        timestamp: Date.now(),
+      });
     }
 
     if (data.type === "audio_chunk") {
       playAudio(data.audio);
-    }
-
-    if (data.type === "stream_end") {
-      console.log("Voice ended.");
-      websocket.close();
     }
   };
 
@@ -262,6 +262,10 @@ function connectWebSocket(audioBlob) {
 }
 
 function playAudio(b64) {
+  if (audioContext && audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
   const blob = new Blob([bytes], { type: "audio/wav" });
   const url = URL.createObjectURL(blob);
@@ -271,17 +275,16 @@ function playAudio(b64) {
 
   audio.onended = () => {
     URL.revokeObjectURL(url);
-    console.log("Audio finished.");
   };
 }
 
 onMounted(() => {
-  isClosing.value = false; // نتأكد إننا مش في وضع الإغلاق
+  isClosing.value = false;
   startRecording();
 });
 
 onBeforeUnmount(() => {
-  isClosing.value = true; // نعلم إننا بنقفل
+  isClosing.value = true;
   if (silenceTimer) clearTimeout(silenceTimer);
   if (websocket) websocket.close();
   stopRecording();

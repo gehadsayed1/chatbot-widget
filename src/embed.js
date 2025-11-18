@@ -1,18 +1,19 @@
 import { createApp } from "vue";
-import App from "./App.vue";
 import { createPinia } from "pinia";
+import App from "./App.vue";
 
-// 1. Create the widget container
-let root = document.getElementById("chatbot-widget-root");
-if (!root) {
-  root = document.createElement("div");
-  root.id = "chatbot-widget-root";
-  document.body.appendChild(root);
+export function mountChatbot(selector = "#chatbot-widget") {
+  const container = document.querySelector(selector);
+  if (!container) {
+    console.error("ChatbotWidget: container not found:", selector);
+    return;
+  }
+
+  const app = createApp(App);
+  const pinia = createPinia();
+  app.use(pinia);
+  app.mount(container);
 }
 
-// 2. Setup Vue + Pinia correctly
-const app = createApp(App);
-const pinia = createPinia();
-
-app.use(pinia); // 🔥 أهم خطوة
-app.mount("#chatbot-widget-root");
+// 👉 Create global variable for browser
+window.ChatbotWidget = { mountChatbot };
