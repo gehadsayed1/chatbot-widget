@@ -36,6 +36,19 @@ const scrollToBottomLocal = async () => {
 };
 
 const handleSuggestion = async (text) => {
+
+  if (text === "شكوى") {
+    window.open("https://www.goeic.gov.eg/ar/complaints-and-suggestions", "_blank");
+    return;
+  }
+
+  
+  if (text === "استفسار") {
+    window.open("https://www.goeic.gov.eg/ar/ask-us", "_blank");
+    return;
+  }
+
+ 
   if (text === "اتصل بنا") {
     chat.messages.push({
       from: "user",
@@ -45,26 +58,26 @@ const handleSuggestion = async (text) => {
 
     chat.messages.push({
       from: "bot",
-      html:  ` <div style="padding: 4px 2px;">
-    <div style="font-weight: 600; margin-bottom: 10px; font-size: 15px;">
-      يمكنك الاتصال:
-    </div>
+      html: ` <div style="padding: 4px 2px;">
+        <div style="font-weight: 600; margin-bottom: 10px; font-size: 15px;">
+          يمكنك الاتصال:
+        </div>
 
-    <div style="margin-bottom: 12px;">
-      <span style="color:#333;">الخط الساخن:</span>
-      <a href="tel:${ORG_INFO.HOTLINE}" style="color:#b07f14; font-weight:bold; text-decoration:underline; margin-right:6px;">
-        ${ORG_INFO.HOTLINE}
-      </a>
-    </div>
+        <div style="margin-bottom: 12px;">
+          <span style="color:#333;">الخط الساخن:</span>
+          <a href="tel:${ORG_INFO.HOTLINE}" style="color:#b07f14; font-weight:bold; text-decoration:underline; margin-right:6px;">
+            ${ORG_INFO.HOTLINE}
+          </a>
+        </div>
 
-    <div>
-      <span style="color:#333;">رقم الهاتف:</span>
-      <a href="tel:${ORG_INFO.PHONE}" style="color:#b07f14; font-weight:bold; text-decoration:underline; margin-right:6px;">
-        ${ORG_INFO.PHONE}
-      </a>
-    </div>
-  </div>
-`,
+        <div>
+          <span style="color:#333;">رقم الهاتف:</span>
+          <a href="tel:${ORG_INFO.PHONE}" style="color:#b07f14; font-weight:bold; text-decoration:underline; margin-right:6px;">
+            ${ORG_INFO.PHONE}
+          </a>
+        </div>
+      </div>
+      `,
       timestamp: Date.now(),
     });
 
@@ -72,10 +85,11 @@ const handleSuggestion = async (text) => {
     return;
   }
 
+  // اقتراح → إرسال للعامل الحالي
   chat.sendMessage(text);
-
   await scrollToBottomLocal();
 };
+
 </script>
 
 <style scoped>

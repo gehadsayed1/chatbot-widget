@@ -4,6 +4,7 @@ import {
   MAIN_BRANCH,
   BRANCH_KEYWORDS,
   HEAD_KEYWORDS,
+  COMPLAINT_KEYWORDS,
 } from "../constants";
 
 import { defineStore } from "pinia";
@@ -49,6 +50,9 @@ export const useChatStore = defineStore("chat", () => {
 
 const checkLocalAnswer = (text) => {
   const lower = text.toLowerCase();
+if (lower.includes("استفسار شكوى:") || lower.includes("رقم الشكوى:")) {
+  return null;
+}
 
   if (BRANCH_KEYWORDS.some((word) => lower.includes(word))) {
     return {
@@ -73,9 +77,16 @@ const checkLocalAnswer = (text) => {
     };
   }
 
- 
+  // ⭐ الكلام المهم هنا
+  if (COMPLAINT_KEYWORDS.some((word) => lower.includes(word))) {
+    return {
+      complaintForm: true,
+    };
+  }
+
   return null;
 };
+
 
   const sendMessage = async (userText) => {
     if (!userText || !userText.toString().trim()) return;

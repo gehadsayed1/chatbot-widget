@@ -47,36 +47,93 @@ export const MAIN_BRANCH = {
 };
 
 
-export const BRANCH_KEYWORDS = [
-  "فرع",
-  "فروع",
-  "الفروع",
-  "اين الفروع",
-  "اين فروع",
-  "مكان الفرع",
-  "مقر",
-  "موقع الفرع",
-  "موقع الفروع",
-  "عنوان الفرع",
-  "عنوان الفروع",
-  "عنوان",
-  "مكان",
-  "اين المقر",
-  "اين فرع",
-  "اماكن الفروع",
-  "اقرب فرع"
+export const HEAD_KEYWORDS = [
+  // عربي
+  "رئيس",
+  "رئيس الهيئة",
+  "اللواء",
+  "من هو رئيس الهيئة",
+  "رئيس الجهة",
+
+  // English
+  "head",
+  "director",
+  "president",
+  "who is the head",
+  "organization head",
+  "chief",
+
+  // French
+  "directeur",
+  "chef",
+  "président",
+  "responsable",
+  "qui est le directeur",
 ];
 
 
-export const HEAD_KEYWORDS = [
-  "رئيس",
-  "رئيس الهيئة",
-  "من هو رئيس الهيئة",
-  "من هو",
-  "اللواء",
-  "النجار",
-  "رئيس الجهة",
-  "رئيس الهيئه"
+export const BRANCH_KEYWORDS = [
+  // عربي
+  "فرع",
+  "فروع",
+  "عنوان الفرع",
+  "عنوان الفروع",
+  "مكان",
+  "اقرب فرع",
+  "مقر",
+  "اين الفروع",
+  "مكان الفرع",
+
+  // English
+  "branch",
+  "branches",
+  "nearest branch",
+  "branch location",
+  "where is the branch",
+  "branch address",
+  "office",
+  "main office",
+
+  // French
+  "succursale",
+  "succursales",
+  "adresse succursale",
+  "bureau",
+  "où est la succursale",
+  "emplacement succursale",
+  "succursale la plus proche",
+];
+
+export const COMPLAINT_KEYWORDS = [
+  // عربي
+  "شكوى",
+  "استفسار",
+  "استعلام عن شكوى",
+  "استفسار شكوى",
+  "عايز اقدم شكوى",
+  "استفسار عن شكوى",
+  "استفسار ضريبي",
+  "عايز استفسر",
+
+  // English
+  "complaint",
+  "file complaint",
+  "submit complaint",
+  "inquiry",
+  "complaint inquiry",
+  "track complaint",
+  "check complaint",
+  "tax inquiry",
+
+  // French
+  "plainte",
+  "déposer une plainte",
+  "soumettre une plainte",
+  "réclamation",
+  "suivre une plainte",
+  "demander des informations",
+  "informer plainte",
+  "demande fiscale",
 ];
 
 
