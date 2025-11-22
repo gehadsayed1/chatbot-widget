@@ -1,37 +1,19 @@
 <template>
-  <footer
-    class="chat-footer bg-white border-t border-gray-100 p-2 flex items-center gap-2"
-    role="contentinfo"
-  >
- <textarea
-  v-model="message"
-  ref="messageInput"
-  dir="rtl"
-  rows="1"
-  placeholder="اكتب استفسارك.. وفريق الهيئة جاهز لمساعدتك"
-  aria-label="حقل إدخال الرسالة"
-  class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e] resize-none max-h-32 overflow-auto placeholder:text-sm"
-  @keydown.enter.exact.prevent="handleSend"
-/>
+  <footer class="chat-footer bg-white border-t border-gray-100 p-2 flex items-center gap-2" role="contentinfo">
+    <textarea v-model="message" ref="messageInput" dir="rtl" rows="1"
+      placeholder="اكتب استفسارك.. وفريق الهيئة جاهز لمساعدتك" aria-label="حقل إدخال الرسالة"
+      class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 focus:outline-none focus:border-[#d2961e] resize-none max-h-32 overflow-auto placeholder:text-sm"
+      @keydown.enter.exact.prevent="handleSend" />
 
 
-    <button
-      type="button"
-      aria-label="بدء مكالمة صوتية"
-      @click="startVoiceCall"
+    <button type="button" aria-label="بدء مكالمة صوتية" @click="startVoiceCall"
       class="w-11 h-11 rounded-full cursor-pointer border text-[#d2961e] border-gray-200 flex items-center justify-center transition hover:bg-[#d2961e] hover:text-white"
-      title="بدء مكالمة صوتية"
-    >
+      title="بدء مكالمة صوتية">
       <i class="fa-solid fa-microphone" aria-hidden="true"></i>
     </button>
 
-    <button
-      type="button"
-      @click="handleSend"
-      aria-label="إرسال الرسالة"
-      :disabled="!message.trim()"
-      class="flex items-center gap-2 cursor-pointer bg-gradient-to-br from-[#d2961e] to-[#b07f14] text-white font-semibold px-4 py-2 rounded-full shadow hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-    >
+    <button type="button" @click="handleSend" aria-label="إرسال الرسالة" :disabled="!message.trim()"
+      class="flex items-center gap-2 cursor-pointer bg-gradient-to-br from-[#d2961e] to-[#b07f14] text-white font-semibold px-4 py-2 rounded-full shadow hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
       <span>إرسال</span>
       <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
     </button>
@@ -60,11 +42,11 @@ const scrollToBottom = async () => {
 
 const handleSend = async () => {
   if (!message.value.trim()) return;
-  
+
   chat.sendMessage(message.value);
   message.value = "";
   await scrollToBottom();
-  
+
   // Focus back to input after sending
   await nextTick();
   messageInput.value?.focus();

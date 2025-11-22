@@ -85,7 +85,7 @@ const handleSuggestion = async (text) => {
     return;
   }
 
-  // اقتراح → إرسال للعامل الحالي
+
   chat.sendMessage(text);
   await scrollToBottomLocal();
 };

@@ -48,14 +48,14 @@ export const MAIN_BRANCH = {
 
 
 export const HEAD_KEYWORDS = [
-  // عربي
+
   "رئيس",
   "رئيس الهيئة",
   "اللواء",
   "من هو رئيس الهيئة",
   "رئيس الجهة",
 
-  // English
+
   "head",
   "director",
   "president",
@@ -73,7 +73,7 @@ export const HEAD_KEYWORDS = [
 
 
 export const BRANCH_KEYWORDS = [
-  // عربي
+
   "فرع",
   "فروع",
   "عنوان الفرع",
@@ -84,7 +84,7 @@ export const BRANCH_KEYWORDS = [
   "اين الفروع",
   "مكان الفرع",
 
-  // English
+ 
   "branch",
   "branches",
   "nearest branch",
@@ -94,7 +94,7 @@ export const BRANCH_KEYWORDS = [
   "office",
   "main office",
 
-  // French
+ 
   "succursale",
   "succursales",
   "adresse succursale",
@@ -105,7 +105,7 @@ export const BRANCH_KEYWORDS = [
 ];
 
 export const COMPLAINT_KEYWORDS = [
-  // عربي
+
   "شكوى",
   "استفسار",
   "استعلام عن شكوى",
@@ -115,7 +115,7 @@ export const COMPLAINT_KEYWORDS = [
   "استفسار ضريبي",
   "عايز استفسر",
 
-  // English
+
   "complaint",
   "file complaint",
   "submit complaint",
@@ -125,7 +125,7 @@ export const COMPLAINT_KEYWORDS = [
   "check complaint",
   "tax inquiry",
 
-  // French
+
   "plainte",
   "déposer une plainte",
   "soumettre une plainte",

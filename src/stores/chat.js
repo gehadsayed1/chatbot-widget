@@ -10,7 +10,7 @@ import {
 import { defineStore } from "pinia";
 import { ref, nextTick } from "vue";
 
-const API_URL = "https://r6suex81bgxkht-8888.proxy.runpod.net/api/ask";
+const API_URL = "https://r6suex81bgxkht-8000.proxy.runpod.net/api/ask";
 
 function extractFirstUrl(text) {
   const rx = /(https?:\/\/[^\s]+)/i;
