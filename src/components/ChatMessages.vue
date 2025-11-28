@@ -67,6 +67,25 @@
               </div>
             </template>
 
+            <template v-else-if="msg.links && msg.links.length > 0">
+              <div>
+                <span>{{ msg.text }}</span>
+                <div class="mt-2 flex flex-col gap-2">
+                  <a
+                    v-for="(linkObj, idx) in msg.links"
+                    :key="idx"
+                    :href="linkObj.url"
+                    target="_blank"
+                    rel="noopener"
+                    class="inline-flex items-center gap-2 text-[#b07f14] hover:text-[#d2961e] underline transition-colors"
+                  >
+                    <i class="fa-solid fa-link text-sm"></i>
+                    <span>{{ linkObj.label }}</span>
+                  </a>
+                </div>
+              </div>
+            </template>
+
             <template v-else-if="msg.link">
               <span>{{ msg.text }} </span>
               <a
