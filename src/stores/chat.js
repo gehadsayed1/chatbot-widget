@@ -1,11 +1,4 @@
-import {
-  CHAT_CONFIG,
-  ORG_INFO,
-  MAIN_BRANCH,
-  BRANCH_KEYWORDS,
-  HEAD_KEYWORDS,
-  COMPLAINT_KEYWORDS,
-} from "../constants";
+import { CHAT_CONFIG, ORG_INFO, HEAD_KEYWORDS } from "../constants";
 
 import { defineStore } from "pinia";
 import { ref, nextTick } from "vue";
@@ -66,8 +59,6 @@ export const useChatStore = defineStore("chat", () => {
       console.log("Loaded existing session:", stored);
     }
   }
-     
-
 
   const toggleChat = () => (isOpen.value = !isOpen.value);
   const openChat = () => (isOpen.value = true);
@@ -75,8 +66,6 @@ export const useChatStore = defineStore("chat", () => {
 
   const clearMessages = () => {
     messages.value = [];
-      
-    
   };
 
   const clearSession = () => {
@@ -106,20 +95,6 @@ export const useChatStore = defineStore("chat", () => {
 
   const checkLocalAnswer = (text) => {
     const lower = text.toLowerCase();
-    if (lower.includes("استفسار شكوى:") || lower.includes("رقم الشكوى:")) {
-      return null;
-    }
-
-    if (BRANCH_KEYWORDS.some((word) => lower.includes(word))) {
-      return {
-        branchCard: true,
-        branchName: MAIN_BRANCH.NAME,
-        branchTitle: MAIN_BRANCH.TITLE,
-        branchAddress: MAIN_BRANCH.ADDRESS,
-        branchMap: MAIN_BRANCH.MAP,
-        branchLink: MAIN_BRANCH.LINK,
-      };
-    }
 
     if (HEAD_KEYWORDS.some((word) => lower.includes(word))) {
       const head = ORG_INFO.HEAD || {};
@@ -130,12 +105,6 @@ export const useChatStore = defineStore("chat", () => {
         headCv: head.CV_URL || head.CV_PATH,
         headBio: head.BIO_SHORT,
         text,
-      };
-    }
-
-    if (COMPLAINT_KEYWORDS.some((word) => lower.includes(word))) {
-      return {
-        complaintForm: true,
       };
     }
 
@@ -196,7 +165,6 @@ export const useChatStore = defineStore("chat", () => {
         return;
       }
 
-
       const data = await res.json();
 
       console.log("API RESPONSE:", data);
@@ -221,7 +189,7 @@ export const useChatStore = defineStore("chat", () => {
 
         addBotMessage({
           text: cleanText,
-          links: urls,  
+          links: urls,
         });
       } else {
         addBotMessage({ text: answer });
@@ -230,7 +198,6 @@ export const useChatStore = defineStore("chat", () => {
       if (messages.value[typingIndex]) {
         messages.value.splice(typingIndex, 1);
       }
-    
 
       console.error("sendMessage error:", err);
 
