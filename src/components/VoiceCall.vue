@@ -34,8 +34,8 @@
   </div>
 </template>
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useChatStore } from '../stores/chat';
+import { onBeforeUnmount, onMounted, ref } from 'vue';;
 
 
 const chat = useChatStore();
@@ -212,24 +212,38 @@ function connectWebSocket(audioBlob) {
   };
 
   websocket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-
-    if (data.type === "full_response") {
-      chat.messages.push({
-        from: "user",
-        text: data.transcript,
-        timestamp: Date.now(),
-      });
-
-      chat.messages.push({
-        from: "bot",
-        text: data.answer,
-        timestamp: Date.now(),
-      });
-    }
-
-    if (data.type === "audio_chunk") {
-      playAudio(data.audio);
+    try {
+      const data = JSON.parse(event.data);
+      
+      console.log("📨 Received message type:", data.type);
+      
+      if (data.type === "transcription") {
+        console.log("📝 Transcription:", data.text);
+      }
+      
+      if (data.type === "text_response") {
+        console.log("💬 Text response:", data.answer);
+        if (data.answer) {
+          chat.messages.push({
+            from: "bot",
+            text: data.answer,
+            timestamp: Date.now(),
+          });
+        }
+      }
+      
+      if (data.type === "audio_response") {
+        console.log("🔊 Audio response received, size:", data.audio?.length);
+        if (data.audio) {
+          playAudio(data.audio);
+        }
+      }
+      
+      if (data.error) {
+        console.error("❌ Server error:", data.error);
+      }
+    } catch (err) {
+      console.error("❌ Failed to parse message:", err, "Raw:", event.data.substring(0, 100));
     }
   };
 
@@ -244,13 +258,23 @@ function playAudio(b64) {
   }
 
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-  const blob = new Blob([bytes], { type: "audio/wav" });
+  const blob = new Blob([bytes], { type: "audio/mpeg" });
   const url = URL.createObjectURL(blob);
   const audio = new Audio(url);
 
-  audio.play().catch((err) => console.error("Play error:", err));
+  console.log("Playing audio - Blob size:", bytes.length, "Type:", blob.type);
+
+  audio.play()
+    .then(() => console.log("✅ Audio playing"))
+    .catch((err) => console.error("❌ Play error:", err));
 
   audio.onended = () => {
+    console.log("✅ Audio ended");
+    URL.revokeObjectURL(url);
+  };
+
+  audio.onerror = (err) => {
+    console.error("❌ Audio error:", err);
     URL.revokeObjectURL(url);
   };
 }

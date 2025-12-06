@@ -3,7 +3,7 @@ import { CHAT_CONFIG, ORG_INFO, HEAD_KEYWORDS } from "../constants";
 import { defineStore } from "pinia";
 import { ref, nextTick } from "vue";
 
-const API_URL = "https://r6suex81bgxkht-8000.proxy.runpod.net/api/ask";
+const API_URL = "http://HOST:PORT/chat";
 
 function extractAllUrls(text) {
   const rx = /(https?:\/\/[^\s]+)/gi;
@@ -13,37 +13,26 @@ function extractAllUrls(text) {
     return [];
   }
 
-  return matches.map((url, index) => {
-    let label = `زور من هنا ${index + 1}`;
-
-    try {
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-
-      const pathParts = pathname.split("/").filter((p) => p && p.length > 0);
-      if (pathParts.length > 0) {
-        const lastPart = pathParts[pathParts.length - 1];
-
-        const cleanPart = decodeURIComponent(
-          lastPart.replace(/\.(html|php|aspx|pdf|doc|docx)$/i, "")
-        );
-
-        if (cleanPart.length > 2 && !/^\d+$/.test(cleanPart)) {
-          label = cleanPart.replace(/[-_]/g, " ");
-        } else if (urlObj.hostname) {
-          label = urlObj.hostname.replace("www.", "");
-        }
-      } else if (urlObj.hostname) {
-        // Use domain name if no path
-        label = urlObj.hostname.replace("www.", "");
-      }
-    } catch (e) {
-      // If URL parsing fails, use default label
-    }
-
-    return { url, label };
-  });
+  return matches.map((url, index) => ({ url, label: url }));
 }
+
+/* ---------------------- COOKIE HELPERS ---------------------- */
+function setCookie(name, value, hours = 24) {
+  const maxAge = hours * 60 * 60;
+  document.cookie = `${name}=${value}; max-age=${maxAge}; path=/`;
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return null;
+}
+
+function deleteCookie(name) {
+  document.cookie = `${name}=; max-age=0; path=/`;
+}
+/* ------------------------------------------------------------- */
 
 export const useChatStore = defineStore("chat", () => {
   const isOpen = ref(false);
@@ -52,11 +41,12 @@ export const useChatStore = defineStore("chat", () => {
 
   const sessionId = ref(null);
 
+  // ⭐ Load session ID from Cookie instead of localStorage
   if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("goeic_session_id");
+    const stored = getCookie("goeic_session_id");
     if (stored) {
       sessionId.value = stored;
-      console.log("Loaded existing session:", stored);
+      console.log("Loaded existing session from cookie:", stored);
     }
   }
 
@@ -70,9 +60,7 @@ export const useChatStore = defineStore("chat", () => {
 
   const clearSession = () => {
     sessionId.value = null;
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("goeic_session_id");
-    }
+    deleteCookie("goeic_session_id");
     clearMessages();
   };
 
@@ -115,7 +103,6 @@ export const useChatStore = defineStore("chat", () => {
     if (!userText || !userText.toString().trim()) return;
 
     const text = userText.toString().trim();
-
     addUserMessage(text);
 
     const local = checkLocalAnswer(text);
@@ -141,13 +128,11 @@ export const useChatStore = defineStore("chat", () => {
         requestBody.session_id = sessionId.value;
       }
 
-      console.log("Sending request with session:", requestBody.session_id);
+      console.log("Sending with session:", requestBody.session_id);
 
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(requestBody),
       });
@@ -161,50 +146,39 @@ export const useChatStore = defineStore("chat", () => {
           text: "لا يوجد اتصال بالخادم حاليًا، برجاء المحاولة لاحقًا.",
           error: true,
         });
-
         return;
       }
 
       const data = await res.json();
-
       console.log("API RESPONSE:", data);
 
+      // ⭐ Save session ID into cookie (24 hours expiry)
       if (data.session_id && data.session_id !== sessionId.value) {
         sessionId.value = data.session_id;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("goeic_session_id", data.session_id);
-        }
+        setCookie("goeic_session_id", data.session_id, 24);
       }
 
       const answer = data.answer || "لا يوجد رد.";
-
       const urls = extractAllUrls(answer);
 
-      if (urls.length > 0) {
-        let cleanText = answer;
-        urls.forEach(({ url }) => {
-          cleanText = cleanText.replace(url, "");
-        });
-        cleanText = cleanText.trim() || "روابط:";
+      // ⭐ Replace URLs inside text without removing them
+      let finalText = answer;
+      urls.forEach(({ url }) => {
+        finalText = finalText.replace(
+          url,
+          `<a href="${url}" target="_blank" rel="noopener" class="text-[#b07f14] underline">${url}</a>`
+        );
+      });
 
-        addBotMessage({
-          text: cleanText,
-          links: urls,
-        });
-      } else {
-        addBotMessage({ text: answer });
-      }
+      addBotMessage({ html: finalText });
     } catch (err) {
-      if (messages.value[typingIndex]) {
-        messages.value.splice(typingIndex, 1);
-      }
+      if (messages.value[typingIndex]) messages.value.splice(typingIndex, 1);
 
       console.error("sendMessage error:", err);
 
       addBotMessage({
-        text: "يتعذّر في الوقت الحالي إتمام الاتصال بالخادم.يرجى من سيادتكم إعادة المحاولة لاحقًا.",
+        text: "يتعذّر في الوقت الحالي إتمام الاتصال بالخادم. يرجى إعادة المحاولة لاحقًا.",
         error: true,
-        timestamp: Date.now(),
       });
     }
   };
