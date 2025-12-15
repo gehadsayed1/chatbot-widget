@@ -77,7 +77,7 @@ export const useChatStore = defineStore("chat", () => {
 
   const addBotMessage = (payload) => {
     messages.value.push(
-      Object.assign({ from: "bot", text: "", timestamp: Date.now() }, payload)
+       Object.assign({ from: "bot", text: "", timestamp: Date.now() }, payload)
     );
   };
 

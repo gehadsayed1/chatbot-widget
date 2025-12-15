@@ -38,9 +38,12 @@ export const ORG_INFO = {
 export const HEAD_KEYWORDS = [
   "مين رئيس",
   "رئيس الهيئة",
+  "رئيس الهيئه",
   "اللواء",
   "من هو رئيس الهيئة",
+  "من هو رئيس الهيئه",
   "رئيس الجهة",
+  "رئيس الجهه",
 
   "head of organization",
   "director",
