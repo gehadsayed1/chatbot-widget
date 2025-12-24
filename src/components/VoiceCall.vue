@@ -52,7 +52,8 @@ let analyser = null;
 let silenceTimer = null;
 let stream = null;
 
-const WEBSOCKET_URL = "wss://r6suex81bgxkht-8888.proxy.runpod.net/api/ws/voice";
+
+const WEBSOCKET_URL = "wss://goeic.stadiaholding.com/api/ws/voice";
 const SILENCE_DURATION = 1000;
 const SOUND_THRESHOLD = 30;
 

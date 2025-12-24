@@ -48,6 +48,16 @@ const handleSuggestion = async (text) => {
     return;
   }
 
+  if (text === "استعلام عن شكوى") {
+    chat.messages.push({
+      from: "bot",
+      complaintForm: true,
+      timestamp: Date.now(),
+    });
+    await scrollToBottomLocal();
+    return;
+  }
+
  
   if (text === "اتصل بنا") {
     chat.messages.push({

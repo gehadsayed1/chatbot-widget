@@ -125,7 +125,61 @@
             </template>
 
             <template v-else-if="msg.html">
-              <div class="contact-card" v-html="msg.html"></div>
+              <div
+                class="contact-card"
+                :dir="msg.language === 'ar' ? 'rtl' : 'ltr'"
+                :style="{ textAlign: msg.language === 'ar' ? 'right' : 'left' }"
+              >
+                <ReadMoreHtml>
+                  <div v-html="msg.html"></div>
+
+                  <div
+                    v-if="msg.sources && msg.sources.length"
+                    class="mt-4 pt-3 border-t border-[#d2961e]/20"
+                  >
+                    <div class="text-xs font-bold mb-2 opacity-80">
+                      المصادر / Sources
+                    </div>
+                    <ul class="space-y-2">
+                      
+                      <li v-for="(source, idx) in msg.sources" :key="idx">
+                        <a
+                          :href="source.url"
+                          target="_blank"
+                          rel="noopener"
+                          class="flex items-start gap-2 text-sm text-[#b07f14] hover:underline break-all"
+                        >
+                          <span class="font-bold text-xs mt-1">{{ idx + 1 }}.</span>
+                          <span>{{ source.title || source.url }}</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </ReadMoreHtml>
+              </div>
+            </template>
+
+            <template v-else-if="msg.inquiryData">
+              <div class="w-full">
+                <div
+                  v-for="(item, idx) in msg.inquiryData"
+                  :key="idx"
+                  class="bg-white p-3 rounded-xl border border-[#d2961e]/20 shadow-sm mb-3 last:mb-0"
+                >
+                  <div class="font-bold text-[#d2961e] text-sm mb-1">
+                    {{ item.question }}
+                  </div>
+                  <div class="text-sm text-gray-700 mb-2 leading-relaxed">
+                    {{ item.depCurrentState }}
+                  </div>
+                  <div
+                    class="flex justify-between items-center text-[11px] text-gray-500 border-t pt-2 mt-2"
+                  >
+                    <span>{{ item.branch }}</span>
+                    <span>{{ item.date }}</span>
+                  </div>
+                </div>
+              </div>
             </template>
 
             <template v-else-if="msg.complaintForm">
@@ -157,9 +211,12 @@
               </div>
             </template>
 
+
             <template v-else>
               <div dir="auto" class="message-text">
-                <ReadMore :text="msg.text" :maxChars="220" />
+                <ReadMoreHtml>
+                  {{ msg.text }}
+                </ReadMoreHtml>
               </div>
             </template>
           </div>
@@ -170,7 +227,9 @@
             role="article"
             class="message-bubble from-user bg-gradient-to-br from-[#d2961e] to-[#b07f14] text-white border border-white/30 rounded-2xl px-4 py-3 shadow max-w-[80%] break-words whitespace-pre-line"
           >
-            <ReadMore :text="msg.text" :maxChars="220" />
+            <ReadMoreHtml>
+              {{ msg.text }}
+            </ReadMoreHtml>
           </div>
 
           <img
@@ -211,7 +270,8 @@
 <script setup>
 import { CHAT_CONFIG } from "../constants";
 import ChatWelcome from "./ChatWelcome.vue";
-import ReadMore from "./ReadMore.vue";
+
+import ReadMoreHtml from "./ReadMoreHtml.vue";
 import { ref, watch, nextTick } from "vue";
 import { useChatStore } from "../stores/chat";
 
@@ -231,9 +291,7 @@ const submitComplaint = () => {
     return;
   }
 
-  const text = `رقم الشكوى: ${complaintNumber.value} - الرقم الضريبي: ${taxNumber.value}`;
-
-  chat.sendMessage(text);
+  chat.inquireComplaint(complaintNumber.value, taxNumber.value);
 
   complaintNumber.value = "";
   taxNumber.value = "";

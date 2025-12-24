@@ -3,7 +3,7 @@ import { CHAT_CONFIG, ORG_INFO, HEAD_KEYWORDS } from "../constants";
 import { defineStore } from "pinia";
 import { ref, nextTick } from "vue";
 
-const API_URL = "http://HOST:PORT/chat";
+const API_URL = "https://goeic.stadiaholding.com/api/chat";
 
 function extractAllUrls(text) {
   const rx = /(https?:\/\/[^\s]+)/gi;
@@ -77,7 +77,7 @@ export const useChatStore = defineStore("chat", () => {
 
   const addBotMessage = (payload) => {
     messages.value.push(
-       Object.assign({ from: "bot", text: "", timestamp: Date.now() }, payload)
+      Object.assign({ from: "bot", text: "", timestamp: Date.now() }, payload)
     );
   };
 
@@ -162,7 +162,7 @@ export const useChatStore = defineStore("chat", () => {
       const urls = extractAllUrls(answer);
 
       // ⭐ Replace URLs inside text without removing them
-      let finalText = answer;
+      let finalText = answer.replace(/\n/g, "<br>");
       urls.forEach(({ url }) => {
         finalText = finalText.replace(
           url,
@@ -170,7 +170,11 @@ export const useChatStore = defineStore("chat", () => {
         );
       });
 
-      addBotMessage({ html: finalText });
+      addBotMessage({
+        html: finalText,
+        language: data.language,
+        sources: data.sources,
+      });
     } catch (err) {
       if (messages.value[typingIndex]) messages.value.splice(typingIndex, 1);
 
@@ -178,6 +182,56 @@ export const useChatStore = defineStore("chat", () => {
 
       addBotMessage({
         text: "يتعذّر في الوقت الحالي إتمام الاتصال بالخادم. يرجى إعادة المحاولة لاحقًا.",
+        error: true,
+      });
+    }
+  };
+
+  const inquireComplaint = async (complaintNum, taxNum) => {
+    // Add loading indicator
+    const typingIndex =
+      messages.value.push({
+        from: "bot",
+        loading: true,
+        timestamp: Date.now(),
+      }) - 1;
+
+    try {
+      const url = `https://goeic.stadiaholding.com/api/callcenter/inquiry/${complaintNum}/${taxNum}`;
+
+      const res = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (messages.value[typingIndex]) {
+        messages.value.splice(typingIndex, 1);
+      }
+
+      if (!res.ok) {
+        addBotMessage({
+          text: "حدث خطأ أثناء الاستعلام، يرجى التأكد من الانترنت والمحاولة مرة أخرى.",
+          error: true,
+        });
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Inquiry Response:", data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        addBotMessage({ inquiryData: data });
+      } else {
+        addBotMessage({
+          text: "لم يتم العثور على بيانات لهذا الرقم.",
+          error: true,
+        });
+      }
+    } catch (err) {
+      if (messages.value[typingIndex]) messages.value.splice(typingIndex, 1);
+      console.error("inquireComplaint error:", err);
+      addBotMessage({
+        text: "تعذر الاتصال بالخادم، يرجى المحاولة لاحقًا.",
         error: true,
       });
     }
@@ -192,6 +246,7 @@ export const useChatStore = defineStore("chat", () => {
     closeChat,
     openChat,
     sendMessage,
+    inquireComplaint,
     clearMessages,
     clearSession,
     openVoiceCall,

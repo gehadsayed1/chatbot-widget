@@ -8,6 +8,7 @@ export const SUGGESTIONS = [
   { text: "استفسار", icon: "fa-solid fa-question-circle" },
   { text: "شكوى", icon: "fa-solid fa-exclamation-triangle" },
   { text: "اقتراح", icon: "fa-solid fa-lightbulb" },
+  { text: "استعلام عن شكوى", icon: "fa-solid fa-magnifying-glass" },
   { text: "اتصل بنا", icon: "fa-solid fa-phone" },
 ];
 
