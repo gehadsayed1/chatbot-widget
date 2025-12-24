@@ -120,6 +120,7 @@ function detectSilence() {
 
     if (average > SOUND_THRESHOLD) {
       isSpeaking.value = true;
+      stopPlayback(); // Stop bot audio when user speaks
       if (silenceTimer) {
         clearTimeout(silenceTimer);
         silenceTimer = null;
@@ -253,7 +254,21 @@ function connectWebSocket(audioBlob) {
   };
 }
 
+let currentAudio = null;
+
+function stopPlayback() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+    console.log("🛑 Playback stopped");
+  }
+}
+
 function playAudio(b64) {
+  // Stop previous audio before playing new one
+  stopPlayback();
+
   if (audioContext && audioContext.state === "suspended") {
     audioContext.resume();
   }
@@ -262,6 +277,8 @@ function playAudio(b64) {
   const blob = new Blob([bytes], { type: "audio/mpeg" });
   const url = URL.createObjectURL(blob);
   const audio = new Audio(url);
+  
+  currentAudio = audio; // Track current audio
 
   console.log("Playing audio - Blob size:", bytes.length, "Type:", blob.type);
 
@@ -272,6 +289,9 @@ function playAudio(b64) {
   audio.onended = () => {
     console.log("✅ Audio ended");
     URL.revokeObjectURL(url);
+    if (currentAudio === audio) {
+      currentAudio = null;
+    }
   };
 
   audio.onerror = (err) => {
@@ -287,6 +307,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   isClosing.value = true;
+  stopPlayback();
   if (silenceTimer) clearTimeout(silenceTimer);
   if (websocket) websocket.close();
   stopRecording();
