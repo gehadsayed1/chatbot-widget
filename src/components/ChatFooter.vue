@@ -20,7 +20,7 @@
       </template>
       <template v-else>
         <span>{{ chat.t.sendButton }}</span>
-        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        <i class="fa-solid fa-paper-plane transform scale-x-[1]" aria-hidden="true"></i>
       </template>
     </button>
   </footer>
