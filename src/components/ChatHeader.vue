@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-gradient-to-br from-[#d2961e] via-[#b07f14] to-[#8d680f] px-4 py-1 text-center relative text-white"
+    class="bg-gradient-to-br from-primary via-primary-dark to-primary-hover px-4 py-1 text-center relative text-white"
     role="banner"
   >
     <div class="flex items-center justify-center gap-3 relative">
@@ -9,7 +9,7 @@
     </div>
     <button
       @click="chat.closeChat"
-      aria-label="إغلاق نافذة الدردشة"
+      :aria-label="chat.t.closeChat"
       class="absolute top-3 left-3 bg-white/20 rounded-full w-9 h-9 flex items-center justify-center hover:bg-white/30 transition-all"
     >
       <i class="fa-solid fa-times text-white" aria-hidden="true"></i>

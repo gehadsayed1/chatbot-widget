@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #d2961e;
+  --color-primary-dark: #b5893d;
+  --color-primary-light: #fff8e1;
+  --color-primary-hover: #9d7633;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&family=Pacifico&family=Sacramento&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
 
@@ -7,4 +14,6 @@ body {
     font-family: "Tajawal", sans-serif;
     
 
+
 }
+

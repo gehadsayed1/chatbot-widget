@@ -1,0 +1,66 @@
+export default {
+  direction: "ltr",
+  welcomeTitle: "Bienvenue dans le système de chat IA",
+  ministryName:
+    "République Arabe d'Égypte - Ministère de l'Investissement et du Commerce Extérieur",
+  authorityName:
+    "Organisation Générale de Contrôle des Exportations et Importations",
+  welcomeMessage:
+    "Nous sommes heureux de vous contacter et accueillons vos demandes et suggestions",
+  chooseLanguage: "Veuillez choisir votre langue",
+  inputPlaceholder:
+    "Tapez votre demande... notre équipe est prête à vous aider",
+  sendButton: "Envoyer",
+  voiceStart: "Démarrer l'appel vocal",
+  voiceListening: "Écoute...",
+  voiceProcessing: "Traitement...",
+  voiceError: "Une erreur s'est produite, veuillez réessayer",
+  voiceSpeakNow: "Parlez maintenant...",
+  voiceAnalyzing: "Analyse audio...",
+  voiceSpeaking: "...Parle",
+  closeChat: "Fermer la fenêtre de discussion",
+  systemBusy: "Le système est occupé, veuillez réessayer plus tard.",
+  connectionError:
+    "Impossible de se connecter au serveur, veuillez réessayer plus tard.",
+  noDataFound: "Aucune donnée trouvée pour ce numéro.",
+  suggestions: "Suggestions :",
+  sources: "Sources :",
+  suggestion_query: "Enquête",
+  suggestion_complaint: "Plainte",
+  suggestion_suggestion: "Suggestion",
+  suggestion_complaintStatus: "Statut de la plainte",
+  suggestion_currency: "Taux de change",
+  suggestion_contactUs: "Contactez-nous",
+  headInfo: {
+    name: "Général de division ingénieur Essam El-Naggar",
+    title:
+      "Président de l'Organisation générale de contrôle des exportations et des importations",
+    bio: "(Né en 1965), Licence en sciences militaires 1987, Licence en ingénierie de l'Université du Caire 1995, Master en sciences militaires et membre du Collège supérieur de guerre. Il a servi comme attaché de défense égyptien en Tunisie.",
+    imageUrl: "https://www.goeic.gov.eg/front-assets/img/minster.png",
+    cvUrl:
+      "https://www.goeic.gov.eg/ar/view_pdf?filePath=https%3A%2F%2Fwww.goeic.gov.eg%2Fupload%2Fonline%2F2024%2F03%2Fdocuments%2Ffiles%2Far%2F1528.pdf",
+    downloadCv: "Télécharger CV",
+  },
+  visitLink: "Visitez ici",
+  branchInfo: {
+    hqTitle: "Siège Social",
+    hqAddress:
+      "Bâtiment électronique à l'aéroport du Caire, devant le village de fret",
+    hqMapUrl:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3451.1958973455053!2d31.410868912252525!3d30.117207450380548!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14581706bbb11871%3A0x4c1f90ec64e1da5c!2z2KfZhNmH2YrYptipINin2YTYudin2YXYqSDZhNmE2LHZgtin2KjYqSDYudmE2Ykg2KfZhNi12KfYr9ix2KfYqiDZiNin2YTZiNin2LHYr9in2Kog2KfZhNmF2YLYsSDYp9mE2LHYptmK2LPZiiDYqNmC2LHZitipINin2YTYqNi22KfYpti5IC0g2YXYt9in2LEg2KfZhNmC2KfZh9ix2Kk!5e0!3m2!1sar!2seg!4v1768329144104!5m2!1sar!2seg",
+    otherBranchesTitle: "Autres Succursales",
+    branchesList: [
+      "Marouf",
+      "Alexandrie",
+      "Dekheila",
+      "Suez",
+      "Ain Sokhna",
+      "Safaga",
+      "Port-Saïd",
+      "Damiette",
+      "Assouan",
+    ],
+    moreDetails: "Pour plus de détails et adresses, cliquez ici",
+    moreDetailsLink: "https://www.goeic.gov.eg/en/about-us/contact-us",
+  },
+};

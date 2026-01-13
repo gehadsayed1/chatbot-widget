@@ -16,7 +16,7 @@
     <button
       v-if="showButton"
       @click="toggle"
-      class="mt-2 text-[#b07f14] text-sm font-semibold hover:underline focus:outline-none flex items-center gap-1"
+      class="mt-2 text-primary-dark text-sm font-semibold hover:underline focus:outline-none flex items-center gap-1"
     >
       <span>{{ expanded ? 'إخفاء' : 'عرض المزيد' }}</span>
       <i :class="expanded ? 'fa-solid fa-angle-up' : 'fa-solid fa-angle-down'"></i>

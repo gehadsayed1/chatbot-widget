@@ -7,10 +7,10 @@
     class="absolute inset-0 overflow-y-auto p-5 bg-transparent z-10"
   >
     <div class="space-y-4">
-      <ChatWelcome v-if="!chat.messages.length" />
+      <ChatWelcome v-if="!chat.messages.length || !chat.languageSelected" />
 
       <div
-        v-else
+        v-if="chat.languageSelected"
         v-for="(msg, index) in chat.messages"
         :key="msg.timestamp || index"
         class="flex items-start gap-3 relative z-10"
@@ -18,7 +18,7 @@
       >
         <template v-if="msg.from === 'bot' && !msg.loading">
           <img
-            class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-[#d2961e]/30 shadow-sm"
+            class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-primary/30 shadow-sm"
             src="../assets/logo2.png"
             alt="صورة البوت"
             aria-hidden="true"
@@ -26,7 +26,7 @@
 
           <div
             role="article"
-            class="message-bubble from-bot bg-gradient-to-br from-[#fff8e1] to-[#f4e6c2] border border-[#d2961e]/20 text-gray-800 rounded-2xl px-3 py-3 shadow max-w-[80%] break-words whitespace-pre-line"
+            class="message-bubble from-bot bg-gradient-to-br from-primary-light to-primary-light border border-primary/20 text-gray-800 rounded-2xl px-3 py-3 shadow max-w-[80%] break-words whitespace-pre-line"
           >
             <template v-if="msg.error">
               <div class="text-red-600 font-bold text-sm">
@@ -58,10 +58,10 @@
                   <a
                     href="/1528.pdf"
                     download="CV-رئيس-الهيئة.pdf"
-                    class="inline-flex items-center gap-2 bg-[#d2961e] text-white px-3 py-1.5 rounded-full shadow hover:shadow-md"
+                    class="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-full shadow hover:shadow-md"
                   >
                     <i class="fa-solid fa-file-pdf"></i>
-                    تحميل CV
+                    {{ msg.downloadText || "تحميل CV" }}
                   </a>
                 </div>
               </div>
@@ -77,7 +77,7 @@
                     :href="linkObj.url"
                     target="_blank"
                     rel="noopener"
-                    class="inline-flex items-center gap-2 text-[#b07f14] hover:text-[#d2961e] underline transition-colors"
+                    class="inline-flex items-center gap-2 text-primary-dark hover:text-primary underline transition-colors"
                   >
                     <i class="fa-solid fa-link text-sm"></i>
                     <span>{{ linkObj.label }}</span>
@@ -92,9 +92,9 @@
                 :href="msg.link"
                 target="_blank"
                 rel="noopener"
-                class="text-[#b07f14] underline"
+                class="text-primary-dark underline"
               >
-                زور من هنا
+                {{ chat.t.visitLink || "زور من هنا" }}
               </a>
             </template>
 
@@ -117,105 +117,107 @@
                 <a
                   :href="msg.branchLink"
                   target="_blank"
-                  class="inline-flex items-center gap-2 text-[#b07f14] underline"
+                  class="inline-flex items-center gap-2 text-primary-dark underline"
                 >
                   لمزيد من الفروع
                 </a>
               </div>
             </template>
 
-            <template v-else-if="msg.html">
+            <template v-else-if="msg.branchInfo">
+              <div class="w-full">
+                <!-- HQ Section -->
+                <div class="mb-4">
+                  <h3
+                    class="font-bold text-primary-dark mb-2 flex items-center gap-2"
+                  >
+                    <i class="fa-solid fa-building-columns"></i>
+                    {{ msg.branchInfo.hqTitle }}
+                  </h3>
+                  <div
+                    class="relative w-full aspect-video rounded-xl overflow-hidden shadow-sm border border-primary/20 mb-2"
+                  >
+                    <iframe
+                      :src="msg.branchInfo.hqMapUrl"
+                      class="w-full h-full border-0"
+                      allowfullscreen=""
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                  </div>
+                  <p class="text-sm font-medium leading-relaxed">
+                    <i class="fa-solid fa-location-dot text-primary ml-1"></i>
+                    {{ msg.branchInfo.hqAddress }}
+                  </p>
+                </div>
+
+                <div class="w-full h-px bg-primary/20 my-3"></div>
+
+                <!-- Other Branches Section -->
+                <div>
+                  <h4 class="font-bold text-sm mb-2 opacity-90">
+                    {{ msg.branchInfo.otherBranchesTitle }}
+                  </h4>
+                  <div class="flex flex-wrap gap-2 mb-3">
+                    <span
+                      v-for="branch in msg.branchInfo.branchesList"
+                      :key="branch"
+                      class="px-2.5 py-1 bg-white border border-primary/30 rounded-lg text-xs text-primary-hover font-medium"
+                    >
+                      {{ branch }}
+                    </span>
+                  </div>
+                  <a
+                    :href="msg.branchInfo.moreDetailsLink"
+                    target="_blank"
+                    class="block text-xs text-center text-primary-dark hover:text-primary underline py-1"
+                  >
+                    {{ msg.branchInfo.moreDetails }}
+                  </a>
+                </div>
+              </div>
+            </template>
+
+            <template v-else>
               <div
                 class="contact-card"
                 :dir="msg.language === 'ar' ? 'rtl' : 'ltr'"
                 :style="{ textAlign: msg.language === 'ar' ? 'right' : 'left' }"
               >
                 <ReadMoreHtml>
-                  <div v-html="msg.html"></div>
+                  <div
+                    class="markdown-body"
+                    v-html="renderMarkdown(msg.text || msg.html)"
+                  ></div>
 
                   <div
                     v-if="msg.sources && msg.sources.length"
-                    class="mt-4 pt-3 border-t border-[#d2961e]/20"
+                    class="mt-4 pt-3 border-t border-primary/20"
                   >
                     <div class="text-xs font-bold mb-2 opacity-80">
                       المصادر / Sources
                     </div>
-                    <ul class="space-y-2">
-                      
-                      <li v-for="(source, idx) in msg.sources" :key="idx">
-                        <a
-                          :href="source.url"
-                          target="_blank"
-                          rel="noopener"
-                          class="flex items-start gap-2 text-sm text-[#b07f14] hover:underline break-all"
-                        >
-                          <span class="font-bold text-xs mt-1">{{ idx + 1 }}.</span>
-                          <span>{{ source.title || source.url }}</span>
-                        </a>
-                      </li>
-                    </ul>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <a
+                        v-for="(source, idx) in msg.sources"
+                        :key="idx"
+                        :href="source.url"
+                        target="_blank"
+                        rel="noopener"
+                        class="p-2 bg-primary/10 text-primary-dark text-xs rounded-2xl border border-primary/30 hover:bg-primary/20 transition-all flex flex-col items-start gap-1 h-full text-right"
+                      >
+                        <div class="flex items-center gap-2 w-full">
+                          <i class="fa-solid fa-link text-[10px] shrink-0"></i>
+                          <span class="truncate font-bold">{{
+                            source.title || source.url
+                          }}</span>
+                        </div>
+                        <div v-if="source.snippet" class="text-[10px] opacity-80 line-clamp-2 w-full whitespace-normal">
+                          {{ source.snippet }}
+                        </div>
+                      </a>
+                    </div>
                   </div>
-                </ReadMoreHtml>
-              </div>
-            </template>
-
-            <template v-else-if="msg.inquiryData">
-              <div class="w-full">
-                <div
-                  v-for="(item, idx) in msg.inquiryData"
-                  :key="idx"
-                  class="bg-white p-3 rounded-xl border border-[#d2961e]/20 shadow-sm mb-3 last:mb-0"
-                >
-                  <div class="font-bold text-[#d2961e] text-sm mb-1">
-                    {{ item.question }}
-                  </div>
-                  <div class="text-sm text-gray-700 mb-2 leading-relaxed">
-                    {{ item.depCurrentState }}
-                  </div>
-                  <div
-                    class="flex justify-between items-center text-[11px] text-gray-500 border-t pt-2 mt-2"
-                  >
-                    <span>{{ item.branch }}</span>
-                    <span>{{ item.date }}</span>
-                  </div>
-                </div>
-              </div>
-            </template>
-
-            <template v-else-if="msg.complaintForm">
-              <div class="space-y-3 w-full max-w-[260px]">
-                <div class="font-semibold text-base text-gray-800">
-                  من فضلك أدخل البيانات التالية:
-                </div>
-
-                <input
-                  v-model="complaintNumber"
-                  type="text"
-                  placeholder="رقم الشكوى"
-                  class="border border-[#d2961e]/40 rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-[#d2961e]"
-                />
-
-                <input
-                  v-model="taxNumber"
-                  type="text"
-                  placeholder="الرقم الضريبي"
-                  class="border border-[#d2961e]/40 rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-[#d2961e]"
-                />
-
-                <button
-                  @click="submitComplaint"
-                  class="bg-[#d2961e] text-white w-full py-2 rounded-xl font-semibold shadow hover:opacity-90 transition"
-                >
-                  إرسال
-                </button>
-              </div>
-            </template>
-
-
-            <template v-else>
-              <div dir="auto" class="message-text">
-                <ReadMoreHtml>
-                  {{ msg.text }}
                 </ReadMoreHtml>
               </div>
             </template>
@@ -225,7 +227,7 @@
         <template v-else-if="msg.from === 'user'">
           <div
             role="article"
-            class="message-bubble from-user bg-gradient-to-br from-[#d2961e] to-[#b07f14] text-white border border-white/30 rounded-2xl px-4 py-3 shadow max-w-[80%] break-words whitespace-pre-line"
+            class="message-bubble from-user bg-gradient-to-br from-primary to-primary-dark text-white border border-white/30 rounded-2xl px-4 py-3 shadow max-w-[80%] break-words whitespace-pre-line"
           >
             <ReadMoreHtml>
               {{ msg.text }}
@@ -233,7 +235,7 @@
           </div>
 
           <img
-            class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-[#d2961e]/30 shadow-sm"
+            class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-primary/30 shadow-sm"
             src="../assets/user.webp"
             alt="صورة المستخدم"
             aria-hidden="true"
@@ -247,20 +249,20 @@
         class="flex items-start gap-3 relative z-10"
       >
         <img
-          class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-[#d2961e]/30 shadow-sm"
+          class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-primary/30 shadow-sm"
           src="../assets/logo2.png"
           alt="chatbot typing"
         />
 
         <div
-          class="bg-gradient-to-br from-[#fff8e1] to-[#f4e6c2] border border-[#d2961e]/20 text-gray-800 rounded-2xl px-4 py-3 shadow flex gap-1"
+          class="bg-gradient-to-br from-primary-light to-primary-light border border-primary/20 text-gray-800 rounded-2xl px-4 py-3 shadow flex gap-1"
         >
-          <span class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce"></span>
+          <span class="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
           <span
-            class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.2s]"
+            class="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"
           ></span>
           <span
-            class="w-2 h-2 bg-[#d2961e] rounded-full animate-bounce [animation-delay:0.4s]"
+            class="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"
           ></span>
         </div>
       </div>
@@ -274,10 +276,40 @@ import ChatWelcome from "./ChatWelcome.vue";
 import ReadMoreHtml from "./ReadMoreHtml.vue";
 import { ref, watch, nextTick } from "vue";
 import { useChatStore } from "../stores/chat";
+import MarkdownIt from "markdown-it";
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+});
+
+// Open links in new tab
+const defaultRender =
+  md.renderer.rules.link_open ||
+  function (tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+  tokens[idx].attrPush(["target", "_blank"]);
+  tokens[idx].attrPush(["rel", "noopener noreferrer"]);
+  tokens[idx].attrPush([
+    "style",
+    "color: var(--color-primary-dark); text-decoration: underline;",
+  ]);
+  return defaultRender(tokens, idx, options, env, self);
+};
 
 const chat = useChatStore();
 
+const renderMarkdown = (content) => {
+  if (!content) return "";
+  return md.render(content);
+};
+
 const complaintNumber = ref("");
+
 const taxNumber = ref("");
 
 const submitComplaint = () => {

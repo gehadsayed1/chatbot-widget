@@ -1,34 +1,43 @@
 <template>
   <div class="absolute inset-0 bg-white/95 backdrop-blur-sm z-30 flex flex-col w-full h-full rounded-none" role="dialog"
-    aria-label="مكالمة صوتية" aria-modal="true">
+    :aria-label="chat.t.voiceStart" aria-modal="true" :dir="chat.direction">
 
-    <header class="flex items-center justify-center px-4 py-3 bg-[#b5893d] text-white">
+    <header class="flex items-center justify-center px-4 py-3 bg-primary-dark text-white">
       <img src="../assets/SmartGOEIC.gif" alt="Smart GOEIC" class="w-40 object-contain" />
     </header>
 
     <main class="flex flex-col items-center justify-center flex-grow p-6">
       <div class="relative flex items-center justify-center">
-        <span class="absolute inline-flex h-44 w-44 rounded-full bg-[#b5893d]/20 animate-ping"></span>
-        <span
-          class="absolute inline-flex h-56 w-56 rounded-full bg-[#b5893d]/10 animate-ping [animation-delay:200ms]"></span>
-        <span
-          class="absolute inline-flex h-64 w-64 rounded-full bg-[#b5893d]/5 animate-ping [animation-delay:400ms]"></span>
+        <!-- Visualizer Bars (Behind the image or around it) -->
+        <div class="absolute inset-0 flex items-center justify-center gap-1.5 z-0 pointer-events-none">
+          <div v-for="(level, i) in visualizerBars" :key="i"
+            class="w-3 bg-primary-dark rounded-full transition-[height] duration-75 ease-linear opacity-80"
+            :style="{ height: `${Math.max(15, level * 1.5)}px` }">
+          </div>
+        </div>
 
-        <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-[#b5893d] shadow-lg wave">
+        <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-primary-dark shadow-lg relative z-10 bg-white">
           <img src="https://t3.ftcdn.net/jpg/01/27/80/10/240_F_127801046_ArruIMeKVplhBv4xDPPoqkXSZQBIWgKW.jpg"
             class="w-full h-full object-cover" alt="صورة المتصل" />
         </div>
       </div>
       <p class="mt-8 text-lg font-semibold text-gray-700">
-        {{ isSpeaking ? " ...Speaking" : " ...Listening" }}
+        {{ isSpeaking ? chat.t.voiceSpeaking : chat.t.voiceListening }}
       </p>
     </main>
 
-    <footer class="p-6 flex justify-center">
+    <footer class="p-6 flex justify-center gap-8">
       <button @click="onClose"
         class="w-14 h-14 rounded-full flex items-center justify-center text-white bg-red-600 shadow-md hover:bg-red-700 transition"
-        aria-label="إنهاء المكالمة" title="إنهاء المكالمة">
+        :aria-label="chat.t.voiceError" :title="chat.t.voiceError">
         <i class="fa-solid fa-xmark text-3xl"></i>
+      </button>
+
+      <button @click="toggleRecording"
+        class="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-md transition"
+        :class="isRecording ? 'bg-primary-dark hover:bg-primary-hover/80' : 'bg-primary-dark hover:bg-primary-hover'"
+        :title="isRecording ? 'Send / إرسال' : 'Start / ابدأ'">
+        <i :class="isRecording ? 'fa-solid fa-paper-plane text-2xl' : 'fa-solid fa-microphone text-2xl'"></i>
       </button>
     </footer>
   </div>
@@ -43,6 +52,8 @@ const chat = useChatStore();
 const isRecording = ref(false);
 const isSpeaking = ref(false);
 const isClosing = ref(false);
+
+const visualizerBars = ref([20, 20, 20, 20, 20]); // 5 bars
 
 let mediaRecorder = null;
 let audioChunks = [];
@@ -65,7 +76,17 @@ function onClose() {
   chat.closeVoiceCall();
 }
 
+function toggleRecording() {
+    if (isRecording.value) {
+        stopAndSendRecording();
+    } else {
+        startRecording();
+    }
+}
+
 function startRecording() {
+  stopPlayback(); // Stop bot audio if playing
+  
   navigator.mediaDevices
     .getUserMedia({ audio: true })
     .then((audioStream) => {
@@ -110,28 +131,45 @@ function detectSilence() {
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
 
+// ... (inside checkAudio)
   const checkAudio = () => {
-    if (!isRecording.value) return;
+    if ((!isRecording.value && !isSpeaking.value) || !analyser) {
+        // Reset bars if not active
+        visualizerBars.value = [20, 20, 20, 20, 20];
+        if(!isRecording.value) return; 
+    }
 
-    analyser.getByteFrequencyData(dataArray);
+    if(analyser) {
+        analyser.getByteFrequencyData(dataArray);
 
-    const average =
-      dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+        // Pick 5 distinct frequencies (low to mid)
+        // Adjust indices to capture voice range better (e.g. 0 to 50)
+        const newBars = [];
+        const step = Math.floor(bufferLength / 10); // Check lower frequencies
+        
+        for (let i = 0; i < 5; i++) {
+            const index = i * step + 2; 
+            let val = dataArray[index] || 0;
+            // Amplify for visual effect
+            if (isSpeaking.value) { // Use 'isSpeaking' or just raw input?
+                // User input visualization
+                // If isSpeaking is false (bot speaking?), we might want to visualize bot audio too if we could connect it to analyser, 
+                // but currently analyser is connected to MIC stream.
+                // So this only visualizes User input.
+             }
+             
+             newBars.push(val);
+        }
+        visualizerBars.value = newBars;
+        
+        const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
 
-    if (average > SOUND_THRESHOLD) {
-      isSpeaking.value = true;
-      stopPlayback(); // Stop bot audio when user speaks
-      if (silenceTimer) {
-        clearTimeout(silenceTimer);
-        silenceTimer = null;
-      }
-    } else if (isSpeaking.value) {
-      if (!silenceTimer) {
-        silenceTimer = setTimeout(() => {
-          isSpeaking.value = false;
-          stopAndSendRecording();
-        }, SILENCE_DURATION);
-      }
+        if (average > SOUND_THRESHOLD) {
+             isSpeaking.value = true;
+             // We don't need to stop playback here because we stop it on startRecording
+        } else {
+             isSpeaking.value = false;
+        }
     }
 
     requestAnimationFrame(checkAudio);
@@ -142,22 +180,8 @@ function detectSilence() {
 
 function stopAndSendRecording() {
   if (mediaRecorder && mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-
-    setTimeout(() => {
-      if (isRecording.value && !isClosing.value) {
-        audioChunks = [];
-        try {
-          mediaRecorder.start();
-        } catch (e) {
-          setTimeout(() => {
-            try {
-              mediaRecorder.start();
-            } catch (_) { }
-          }, 150);
-        }
-      }
-    }, 200);
+    mediaRecorder.stop(); 
+    // Do NOT restart recording here. Wait for user to click Start again.
   }
 }
 
@@ -193,65 +217,20 @@ function sendAudioData() {
 
   const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
+  isRecording.value = false; // Ensure visual state is off
+  
   if (audioBlob.size < 500) {
     return;
   }
 
-  connectWebSocket(audioBlob);
+  processVoice(audioBlob);
 }
 
-function connectWebSocket(audioBlob) {
-  if (websocket && websocket.readyState !== WebSocket.CLOSED) {
-    try {
-      websocket.close();
-    } catch (_) { }
+async function processVoice(audioBlob) {
+  const data = await chat.sendVoiceMessage(audioBlob);
+  if (data && data.audio) {
+    playAudio(data.audio);
   }
-
-  websocket = new WebSocket(WEBSOCKET_URL);
-
-  websocket.onopen = () => {
-    websocket.send(audioBlob);
-  };
-
-  websocket.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      
-      console.log("📨 Received message type:", data.type);
-      
-      if (data.type === "transcription") {
-        console.log("📝 Transcription:", data.text);
-      }
-      
-      if (data.type === "text_response") {
-        console.log("💬 Text response:", data.answer);
-        if (data.answer) {
-          chat.messages.push({
-            from: "bot",
-            text: data.answer,
-            timestamp: Date.now(),
-          });
-        }
-      }
-      
-      if (data.type === "audio_response") {
-        console.log("🔊 Audio response received, size:", data.audio?.length);
-        if (data.audio) {
-          playAudio(data.audio);
-        }
-      }
-      
-      if (data.error) {
-        console.error("❌ Server error:", data.error);
-      }
-    } catch (err) {
-      console.error("❌ Failed to parse message:", err, "Raw:", event.data.substring(0, 100));
-    }
-  };
-
-  websocket.onerror = (err) => {
-    console.error("WS Error:", err);
-  };
 }
 
 let currentAudio = null;
@@ -269,49 +248,40 @@ function playAudio(b64) {
   // Stop previous audio before playing new one
   stopPlayback();
 
-  if (audioContext && audioContext.state === "suspended") {
-    audioContext.resume();
-  }
-
-  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-  const blob = new Blob([bytes], { type: "audio/mpeg" });
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
+  const audioSrc = `data:audio/mp3;base64,${b64}`;
+  const audio = new Audio(audioSrc);
   
-  currentAudio = audio; // Track current audio
-
-  console.log("Playing audio - Blob size:", bytes.length, "Type:", blob.type);
+  currentAudio = audio;
 
   audio.play()
-    .then(() => console.log("✅ Audio playing"))
+    .then(() => {
+      console.log("✅ Audio playing");
+    })
     .catch((err) => console.error("❌ Play error:", err));
 
   audio.onended = () => {
     console.log("✅ Audio ended");
-    URL.revokeObjectURL(url);
-    if (currentAudio === audio) {
-      currentAudio = null;
-    }
+    currentAudio = null;
   };
 
   audio.onerror = (err) => {
     console.error("❌ Audio error:", err);
-    URL.revokeObjectURL(url);
+    currentAudio = null;
   };
 }
 
 onMounted(() => {
   isClosing.value = false;
-  startRecording();
+  // startRecording(); // Disabled auto-start
 });
 
 onBeforeUnmount(() => {
   isClosing.value = true;
   stopPlayback();
   if (silenceTimer) clearTimeout(silenceTimer);
-  if (websocket) websocket.close();
   stopRecording();
 });
+
 </script>
 
 <style scoped>

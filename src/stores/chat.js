@@ -1,20 +1,16 @@
-import { CHAT_CONFIG, ORG_INFO, HEAD_KEYWORDS } from "../constants";
-
+import {
+  CHAT_CONFIG,
+  ORG_INFO,
+  HEAD_KEYWORDS,
+  BRANCH_KEYWORDS,
+} from "../constants";
+import notificationSound from "../assets/mixkit-confirmation-tone-2867.wav";
 import { defineStore } from "pinia";
-import { ref, nextTick } from "vue";
+import { ref, computed } from "vue";
+import axios from "axios";
+import { translations } from "../i18n/translations";
 
-const API_URL = "https://goeic.stadiaholding.com/api/chat";
-
-function extractAllUrls(text) {
-  const rx = /(https?:\/\/[^\s]+)/gi;
-  const matches = text.match(rx);
-
-  if (!matches || matches.length === 0) {
-    return [];
-  }
-
-  return matches.map((url, index) => ({ url, label: url }));
-}
+const API_BASE_URL = "http://41.155.190.166:8000";
 
 /* ---------------------- COOKIE HELPERS ---------------------- */
 function setCookie(name, value, hours = 24) {
@@ -35,18 +31,27 @@ function deleteCookie(name) {
 /* ------------------------------------------------------------- */
 
 export const useChatStore = defineStore("chat", () => {
-  const isOpen = ref(false);
+  const isOpen = ref(true);
   const messages = ref([]);
   const isVoiceCallOpen = ref(false);
-
   const sessionId = ref(null);
+  const currentLanguage = ref("ar");
+  const languageSelected = ref(false);
 
-  // ⭐ Load session ID from Cookie instead of localStorage
+  const t = computed(
+    () => translations[currentLanguage.value] || translations["ar"]
+  );
+  const direction = computed(() => t.value.direction);
+
   if (typeof window !== "undefined") {
-    const stored = getCookie("goeic_session_id");
-    if (stored) {
-      sessionId.value = stored;
-      console.log("Loaded existing session from cookie:", stored);
+    const storedSession = getCookie("goeic_session_id");
+    if (storedSession) {
+      sessionId.value = storedSession;
+    }
+    const storedLang = getCookie("goeic_language");
+    if (storedLang) {
+      currentLanguage.value = storedLang;
+      languageSelected.value = true;
     }
   }
 
@@ -60,8 +65,16 @@ export const useChatStore = defineStore("chat", () => {
 
   const clearSession = () => {
     sessionId.value = null;
+    languageSelected.value = false;
     deleteCookie("goeic_session_id");
+    deleteCookie("goeic_language");
     clearMessages();
+  };
+
+  const setLanguage = (lang) => {
+    currentLanguage.value = lang;
+    languageSelected.value = true;
+    setCookie("goeic_language", lang, 24 * 30); // Store for 30 days
   };
 
   const openVoiceCall = () => (isVoiceCallOpen.value = true);
@@ -75,39 +88,121 @@ export const useChatStore = defineStore("chat", () => {
     });
   };
 
-  const addBotMessage = (payload) => {
-    messages.value.push(
-      Object.assign({ from: "bot", text: "", timestamp: Date.now() }, payload)
-    );
-  };
-
-  const checkLocalAnswer = (text) => {
-    const lower = text.toLowerCase();
-
-    if (HEAD_KEYWORDS.some((word) => lower.includes(word))) {
-      const head = ORG_INFO.HEAD || {};
-      const text = `${head.NAME || ""}\n${head.TITLE || ""}`;
-
-      return {
-        headImage: head.IMAGE,
-        headCv: head.CV_URL || head.CV_PATH,
-        headBio: head.BIO_SHORT,
-        text,
-      };
+  function addBotMessage(response = {}) {
+    try {
+      console.log("Initializing audio with:", notificationSound);
+      const sound = new Audio(notificationSound);
+      sound.volume = 0.5;
+      const playPromise = sound.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => console.log("Audio played successfully."))
+          .catch((error) => console.warn("Audio playback prevented:", error));
+      }
+    } catch (err) {
+      console.error("Error initializing audio:", err);
     }
 
-    return null;
+    messages.value.push({
+      from: "bot",
+      text: response.text || "",
+      suggestions: response.suggestions || [],
+      timestamp: Date.now(),
+      ...response,
+    });
+  }
+
+  const getChatHistory = () => {
+    return messages.value
+      .filter((m) => !m.loading && !m.error)
+      .map((m) => ({
+        role: m.from === "user" ? "user" : "assistant",
+        content: m.text || m.html || "",
+      }));
   };
 
   const sendMessage = async (userText) => {
     if (!userText || !userText.toString().trim()) return;
 
     const text = userText.toString().trim();
+    console.log("Sending message:", text);
     addUserMessage(text);
 
-    const local = checkLocalAnswer(text);
-    if (local) {
-      addBotMessage(local);
+    // Check for Head Keywords locally
+    const isHeadInquiry = HEAD_KEYWORDS.some((k) =>
+      text.toLowerCase().includes(k.toLowerCase())
+    );
+
+    if (isHeadInquiry) {
+      addBotMessage({
+        text: `${t.value.headInfo.name}\n${t.value.headInfo.title}`,
+        headImage: t.value.headInfo.imageUrl,
+        headBio: t.value.headInfo.bio,
+        headCv: t.value.headInfo.cvUrl,
+        downloadText: t.value.headInfo.downloadCv,
+      });
+      return;
+    }
+
+    // Mock Response for Testing
+    if (text.toLowerCase() === "mock") {
+      setTimeout(() => {
+        addBotMessage({
+          text: "• المقر الرئيسي لهيئة الرقابة على الصادرات والواردات يقع في قرية البضائع بمطار القاهرة، والمقر الإداري في 1 شارع معروف، رمسيس، وسط القاهرة.\n\n• يمكن التواصل مع الهيئة عبر الخط الساخن 19591 أو من خلال الموقع الإلكتروني www.goeic.gov.eg.\n\n• ساعات العمل الرسمية للهيئة هي من الأحد إلى الخميس، من الساعة 8:30 صباحاً حتى 3:30 عصراً.\n\n• البند الجمركي 3204150010 يتعلق بأصباغ الراقود المستخدمة في الصناعات النسجية، ويخضع لشروط استيرادية معينة.\n\n• لا يتم الإفراج عن الكيماويات الصناعية السامة وغير السامة الواردة للمصانع أو الاتجار إلا بشروط محددة.\n\n• هناك قائمة من السلع التي يشترط عند تصديرها سداد كامل قيمتها مقومة بالعملات الأجنبية القابلة للتحويل عن طريق أحد البنوك المعتمدة لدى البنك المركزي المصري.",
+          sources: [
+            {
+              title: "Official Contact & Hours",
+              url: "https://www.goeic.gov.eg/ar/about-us/callUs",
+              type: "link",
+              snippet:
+                "يمكنكم التواصل معنا عبر الخط الساخن 19591 طوال أيام الأسبوع...",
+            },
+            {
+              title: "بند جمركي 3204150010",
+              url: "hscode_3204150010",
+              type: "doc",
+              snippet: "تفاصيل البند الجمركي والتعريفة الجمركية المرتبطة به...",
+            },
+            {
+              title: "قاموس المصطلحات",
+              url: "https://www.goeic.gov.eg/ar/glossary?page=154",
+              type: "link",
+              snippet:
+                "تعريف المصطلحات التجارية والجمركية المستخدمة في الهيئة...",
+            },
+            {
+              title: "قاموس المصطلحات",
+              url: "https://www.goeic.gov.eg/ar/glossary?page=153",
+              type: "link",
+            },
+            {
+              title:
+                "منشور تصديري رقم 16 لسنه 2025 بشأن تطبيق قرار رقم 273 لسنه 2025",
+              url: "https://www.goeic.gov.eg/upload/online/2025/07/documents/files/ar/1735.pdf",
+              type: "link",
+            },
+            {
+              title:
+                "قرار وزير التجارة والصناعه رقم 2 لسنة 2013 في شأن تعديل القرار 983 لسنة 2012 بشان إختبارات الجلود",
+              url: "https://www.goeic.gov.eg/upload/online/2024/03/documents/files/ar/1172.pdf",
+              type: "link",
+            },
+          ],
+          suggestions: [
+            "ما هي الشروط الاستيرادية للبند الجمركي 3204150010؟",
+            "كيف يمكن التواصل مع هيئة الرقابة على الصادرات والواردات؟",
+            "ما هي ساعات العمل الرسمية للهيئة؟",
+          ],
+        });
+      }, 500);
+      return;
+    }
+
+    // Check for Branches/HQ Keywords locally (Specific Phrases Only)
+    if (BRANCH_KEYWORDS.some((k) => text.toLowerCase().includes(k))) {
+      addBotMessage({
+        branchInfo: t.value.branchInfo,
+      });
       return;
     }
 
@@ -119,76 +214,72 @@ export const useChatStore = defineStore("chat", () => {
       }) - 1;
 
     try {
-      const requestBody = {
+      const payload = {
         question: text,
-        language: "ar",
+        language: currentLanguage.value,
+        history: getChatHistory().slice(0, -1), // History excluding the current message
       };
+      console.log("Sending API payload:", payload);
 
-      if (sessionId.value) {
-        requestBody.session_id = sessionId.value;
-      }
-
-      console.log("Sending with session:", requestBody.session_id);
-
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(requestBody),
-      });
+      const response = await axios.post(`${API_BASE_URL}/api/chat`, payload);
+      const data = response.data;
 
       if (messages.value[typingIndex]) {
         messages.value.splice(typingIndex, 1);
       }
 
-      if (!res.ok) {
-        addBotMessage({
-          text: "لا يوجد اتصال بالخادم حاليًا، برجاء المحاولة لاحقًا.",
-          error: true,
-        });
-        return;
-      }
-
-      const data = await res.json();
-      console.log("API RESPONSE:", data);
-
-      // ⭐ Save session ID into cookie (24 hours expiry)
-      if (data.session_id && data.session_id !== sessionId.value) {
-        sessionId.value = data.session_id;
-        setCookie("goeic_session_id", data.session_id, 24);
-      }
-
-      const answer = data.answer || "لا يوجد رد.";
-      const urls = extractAllUrls(answer);
-
-      // ⭐ Replace URLs inside text without removing them
-      let finalText = answer.replace(/\n/g, "<br>");
-      urls.forEach(({ url }) => {
-        finalText = finalText.replace(
-          url,
-          `<a href="${url}" target="_blank" rel="noopener" class="text-[#b07f14] underline">${url}</a>`
-        );
-      });
-
       addBotMessage({
-        html: finalText,
-        language: data.language,
+        text: data.answer,
         sources: data.sources,
+        suggestions: data.suggestions,
+        language: currentLanguage.value,
       });
-    } catch (err) {
+    } catch (error) {
       if (messages.value[typingIndex]) messages.value.splice(typingIndex, 1);
-
-      console.error("sendMessage error:", err);
-
+      console.error("Chat Error:", error);
       addBotMessage({
-        text: "يتعذّر في الوقت الحالي إتمام الاتصال بالخادم. يرجى إعادة المحاولة لاحقًا.",
+        text: "System is busy, please try again.",
         error: true,
       });
     }
   };
 
+  const sendVoiceMessage = async (audioBlob) => {
+    const formData = new FormData();
+    formData.append("file", audioBlob, "recording.webm");
+    formData.append("language", currentLanguage.value);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/voice`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const data = response.data;
+
+      if (data.question) {
+        addUserMessage(data.question);
+      }
+
+      addBotMessage({
+        text: data.answer,
+        sources: data.sources,
+        suggestions: data.suggestions,
+        language: currentLanguage.value,
+        audio: data.audio, // Base64 audio
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Voice Error:", error);
+      addBotMessage({
+        text: "Voice processing failed, please try again.",
+        error: true,
+      });
+      return null;
+    }
+  };
+
   const inquireComplaint = async (complaintNum, taxNum) => {
-    // Add loading indicator
     const typingIndex =
       messages.value.push({
         from: "bot",
@@ -197,30 +288,15 @@ export const useChatStore = defineStore("chat", () => {
       }) - 1;
 
     try {
-      const url = `https://goeic.stadiaholding.com/api/callcenter/inquiry/${complaintNum}/${taxNum}`;
-
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const url = `${API_BASE_URL}/api/callcenter/inquiry/${complaintNum}/${taxNum}`;
+      const res = await axios.get(url);
 
       if (messages.value[typingIndex]) {
         messages.value.splice(typingIndex, 1);
       }
 
-      if (!res.ok) {
-        addBotMessage({
-          text: "حدث خطأ أثناء الاستعلام، يرجى التأكد من الانترنت والمحاولة مرة أخرى.",
-          error: true,
-        });
-        return;
-      }
-
-      const data = await res.json();
-      console.log("Inquiry Response:", data);
-
-      if (Array.isArray(data) && data.length > 0) {
-        addBotMessage({ inquiryData: data });
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        addBotMessage({ inquiryData: res.data });
       } else {
         addBotMessage({
           text: "لم يتم العثور على بيانات لهذا الرقم.",
@@ -242,14 +318,20 @@ export const useChatStore = defineStore("chat", () => {
     messages,
     isVoiceCallOpen,
     sessionId,
+    currentLanguage,
+    languageSelected,
     toggleChat,
     closeChat,
     openChat,
     sendMessage,
+    sendVoiceMessage,
+    setLanguage,
     inquireComplaint,
     clearMessages,
     clearSession,
     openVoiceCall,
     closeVoiceCall,
+    t,
+    direction,
   };
 });
