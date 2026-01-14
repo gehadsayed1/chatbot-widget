@@ -13,9 +13,9 @@
     </button>
 
     <button v-if="chat.isLoading && !message.trim()" type="button" @click="chat.stopGeneration" aria-label="Stop generation"
-      class="flex items-center justify-center w-11 h-11 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition shadow-sm border border-red-200"
+      class="flex items-center justify-center cursor-pointer w-11 h-11 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition shadow-sm border border-red-200"
       title="Stop generation">
-      <i class="fa-solid fa-square text-lg"></i>
+      <i class="fa-solid fa-square text-md"></i>
     </button>
 
     <button v-else type="button" @click="handleSend" :aria-label="t('sendButton')" :disabled="!message.trim()"
