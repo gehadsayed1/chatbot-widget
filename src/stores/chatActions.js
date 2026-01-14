@@ -98,6 +98,7 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         signal: abortController.value.signal,
       });
       const data = response.data;
+      console.log("Chat API Response:", data);
 
       if (messagesStore.messages[typingIndex]) {
         messagesStore.messages.splice(typingIndex, 1);
@@ -199,6 +200,7 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
       console.log("Request URL:", url);
 
       const res = await axios.get(url);
+      console.log("Complaint API Response:", res.data);
 
       if (messagesStore.messages[typingIndex]) {
         messagesStore.messages.splice(typingIndex, 1);

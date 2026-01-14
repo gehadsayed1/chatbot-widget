@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -30,40 +30,73 @@ const { t } = useI18n();
 const props = defineProps({
   maxHeight: {
     type: String,
-    default: '350px'
+    default: '350px' // Kept for prop compat, but relying on visual clamp now
   }
 });
 
 const expanded = ref(false);
 const showButton = ref(false);
 const contentRef = ref(null);
+let observer = null;
 
 const checkHeight = async () => {
   await nextTick();
   if (contentRef.value) {
-    const maxPixels = parseInt(props.maxHeight, 10);
-    if (!isNaN(maxPixels) && contentRef.value.scrollHeight > maxPixels + 10) {
+    // Check if content is clamped (scroll height > client height)
+    // We add a small buffer (e.g., 2px) to account for sub-pixel rounding differences
+    if (contentRef.value.scrollHeight > contentRef.value.clientHeight + 2) {
       showButton.value = true;
     } else {
-      showButton.value = false;
+      // If expanded, we always show button if it WAS needed (to allow collapse)
+      // But if we want to dynamic hide if text becomes short?
+      // Usually keep it simple: if not expanded and fits, hide.
+      // If expanded, scrollHeight == clientHeight usually.
+      // So we might lose the button if we expand.
+      // We need to know if it *would* overflow if collapsed.
+      
+      // Better approach for "Show Less":
+      // If expanded is true, we assume button should be visible (to collapse).
+      // If expanded is false, showButton depends on overflow.
+      
+      if (!expanded.value) {
+        showButton.value = false;
+      }
     }
   }
 };
 
 const toggle = () => {
   expanded.value = !expanded.value;
+  // If we are collapsing, we might need to re-verify but usually button stays required
 };
 
 onMounted(() => {
   checkHeight();
+  
+  if (contentRef.value) {
+    observer = new MutationObserver(() => {
+      checkHeight();
+    });
+    observer.observe(contentRef.value, { 
+      childList: true, 
+      subtree: true, 
+      characterData: true 
+    });
+  }
 });
 
+onBeforeUnmount(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
 </script>
 
 <style scoped>
 .line-clamp-custom {
   display: -webkit-box;
   -webkit-line-clamp: 10;
+  line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
