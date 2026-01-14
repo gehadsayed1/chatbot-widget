@@ -21,26 +21,18 @@
 import { ORG_INFO, SUGGESTIONS } from "../constants";
 import { nextTick, computed } from "vue";
 import { useChatStore } from "../stores/chat";
+import { useI18n } from "vue-i18n";
 
 const chat = useChatStore();
+const { t } = useI18n();
 
 const suggestions = computed(() => {
-  // Find the last bot message that has suggestions
-  const botMessages = chat.messages.filter(m => m.from === 'bot' && m.suggestions);
-  if (botMessages.length > 0) {
-    const lastBotMsg = botMessages[botMessages.length - 1];
-    return lastBotMsg.suggestions.map(s => ({ text: s, icon: 'fa-solid fa-comment-dots' }));
-  }
-  
-  // Default translated suggestions
-  return [
-    { text: chat.t.suggestion_query, icon: "fa-solid fa-question-circle", key: 'query' },
-    { text: chat.t.suggestion_complaint, icon: "fa-solid fa-exclamation-triangle", key: 'complaint' },
-    { text: chat.t.suggestion_suggestion, icon: "fa-solid fa-lightbulb", key: 'suggestion' },
-    { text: chat.t.suggestion_complaintStatus, icon: "fa-solid fa-magnifying-glass", key: 'complaintStatus' },
-    { text: chat.t.suggestion_currency, icon: "fa-solid fa-money-bill-transfer", key: 'currency' },
-    { text: chat.t.suggestion_contactUs, icon: "fa-solid fa-phone", key: 'contactUs' },
-  ];
+  // Always show Default Main Menu mapped from constant
+  return SUGGESTIONS.map(s => ({
+    text: t(s.text), // Translate using the key provided in constant
+    icon: s.icon,
+    key: s.text // Keeps the original key (e.g. 'suggestion_query') for logic
+  }));
 });
 
 const scrollToBottomLocal = async () => {
@@ -56,19 +48,19 @@ const scrollToBottomLocal = async () => {
 
 const handleSuggestion = async (item) => {
   const text = typeof item === 'string' ? item : item.text;
-  const key = item.key; // May be undefined for dynamic suggestions
+  const key = item.key; 
 
-  if (key === 'complaint' || text === "شكوى" || text === "Complaint" || text === "Plainte") {
+  if (key === 'suggestion_complaint') {
     window.open("https://www.goeic.gov.eg/ar/complaints-and-suggestions", "_blank");
     return;
   }
 
-  if (key === 'query' || text === "استفسار" || text === "Inquiry" || text === "Enquête") {
+  if (key === 'suggestion_query') {
     window.open("https://www.goeic.gov.eg/ar/ask-us", "_blank");
     return;
   }
 
-  if (key === 'complaintStatus' || text === "استعلام عن شكوى" || text === "Complaint Status" || text === "Statut de la plainte") {
+  if (key === 'suggestion_complaintStatus') {
     chat.messages.push({
       from: "bot",
       complaintForm: true,
@@ -78,12 +70,12 @@ const handleSuggestion = async (item) => {
     return;
   }
 
-  if (key === 'currency') {
+  if (key === 'suggestion_currency') {
     window.open("https://www.cbe.org.eg/ar/economic-research/statistics/exchange-rates", "_blank");
     return;
   }
 
-  if (key === 'contactUs' || text === "اتصل بنا" || text === "Contact Us" || text === "Contactez-nous") {
+  if (key === 'suggestion_contactUs') {
     chat.messages.push({
       from: "user",
       text: text,
@@ -92,7 +84,7 @@ const handleSuggestion = async (item) => {
 
     chat.messages.push({
       from: "bot",
-      text: `يمكنك الاتصال:\n\n**الخط الساخن:** [${ORG_INFO.HOTLINE}](tel:${ORG_INFO.HOTLINE})\n**رقم الهاتف:** [${ORG_INFO.PHONE}](tel:${ORG_INFO.PHONE})`,
+      text: `${t('contactIntro')}\n\n**${t('hotlineLabel')}** [${ORG_INFO.HOTLINE}](tel:${ORG_INFO.HOTLINE})\n**${t('phoneLabel')}** [${ORG_INFO.PHONE}](tel:${ORG_INFO.PHONE})`,
       timestamp: Date.now(),
     });
 

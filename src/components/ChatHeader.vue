@@ -9,7 +9,7 @@
     </div>
     <button
       @click="chat.closeChat"
-      :aria-label="chat.t.closeChat"
+      :aria-label="t('closeChat')"
       class="absolute top-3 left-3 bg-white/20 rounded-full w-9 h-9 flex items-center justify-center hover:bg-white/30 transition-all"
     >
       <i class="fa-solid fa-times text-white" aria-hidden="true"></i>
@@ -19,5 +19,7 @@
 
 <script setup>
 import { useChatStore } from "../stores/chat";
+import { useI18n } from "vue-i18n";
 const chat = useChatStore();
+const { t } = useI18n();
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="absolute inset-0 bg-white/95 backdrop-blur-sm z-30 flex flex-col w-full h-full rounded-none" role="dialog"
-    :aria-label="chat.t.voiceStart" aria-modal="true" :dir="chat.direction">
+    :aria-label="t('voiceStart')" aria-modal="true">
 
     <header class="flex items-center justify-center px-4 py-3 bg-primary-dark text-white">
       <img src="../assets/SmartGOEIC.gif" alt="Smart GOEIC" class="w-40 object-contain" />
@@ -16,27 +16,32 @@
           </div>
         </div>
 
-        <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-primary-dark shadow-lg relative z-10 bg-white">
+        <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-primary-dark shadow-lg relative z-10 bg-white transition-all duration-300"
+             :class="{ 'wave shadow-glow': isSpeaking }">
           <img src="https://t3.ftcdn.net/jpg/01/27/80/10/240_F_127801046_ArruIMeKVplhBv4xDPPoqkXSZQBIWgKW.jpg"
             class="w-full h-full object-cover" alt="صورة المتصل" />
         </div>
       </div>
       <p class="mt-8 text-lg font-semibold text-gray-700">
-        {{ isSpeaking ? chat.t.voiceSpeaking : chat.t.voiceListening }}
+        {{
+          isProcessing ? t('voiceProcessing') :
+          isSpeaking ? t('voiceSpeaking') :
+          t('voiceListening')
+        }}
       </p>
     </main>
 
     <footer class="p-6 flex justify-center gap-8">
       <button @click="onClose"
         class="w-14 h-14 rounded-full flex items-center justify-center text-white bg-red-600 shadow-md hover:bg-red-700 transition"
-        :aria-label="chat.t.voiceError" :title="chat.t.voiceError">
+        :aria-label="t('voiceError')" :title="t('voiceError')">
         <i class="fa-solid fa-xmark text-3xl"></i>
       </button>
 
       <button @click="toggleRecording"
-        class="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-md transition"
+        class="w-14 h-14 rounded-full cursor-pointer flex items-center justify-center text-white shadow-md transition"
         :class="isRecording ? 'bg-primary-dark hover:bg-primary-hover/80' : 'bg-primary-dark hover:bg-primary-hover'"
-        :title="isRecording ? 'Send / إرسال' : 'Start / ابدأ'">
+        :title="isRecording ? t('sendButton') : t('voiceStart')">
         <i :class="isRecording ? 'fa-solid fa-paper-plane text-2xl' : 'fa-solid fa-microphone text-2xl'"></i>
       </button>
     </footer>
@@ -44,27 +49,27 @@
 </template>
 <script setup>
 import { useChatStore } from '../stores/chat';
-import { onBeforeUnmount, onMounted, ref } from 'vue';;
-
+import { useI18n } from 'vue-i18n';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const chat = useChatStore();
+const { t } = useI18n();
 
 const isRecording = ref(false);
 const isSpeaking = ref(false);
+const isProcessing = ref(false);
 const isClosing = ref(false);
 
 const visualizerBars = ref([20, 20, 20, 20, 20]); // 5 bars
 
 let mediaRecorder = null;
 let audioChunks = [];
-let websocket = null;
 let audioContext = null;
 let analyser = null;
 let silenceTimer = null;
 let stream = null;
 
 
-const WEBSOCKET_URL = "wss://goeic.stadiaholding.com/api/ws/voice";
 const SILENCE_DURATION = 1000;
 const SOUND_THRESHOLD = 30;
 
@@ -72,7 +77,6 @@ function onClose() {
   isClosing.value = true;
   stopRecording();
   if (silenceTimer) clearTimeout(silenceTimer);
-  if (websocket) websocket.close();
   chat.closeVoiceCall();
 }
 
@@ -223,13 +227,21 @@ function sendAudioData() {
     return;
   }
 
+  isProcessing.value = true; // Start processing state
   processVoice(audioBlob);
 }
 
 async function processVoice(audioBlob) {
-  const data = await chat.sendVoiceMessage(audioBlob);
-  if (data && data.audio) {
-    playAudio(data.audio);
+  try {
+    const data = await chat.sendVoiceMessage(audioBlob);
+    if (data && data.audio) {
+      playAudio(data.audio);
+    } else {
+      isProcessing.value = false;
+    }
+  } catch (error) {
+    console.error("Error processing voice:", error);
+    isProcessing.value = false;
   }
 }
 
@@ -240,7 +252,6 @@ function stopPlayback() {
     currentAudio.pause();
     currentAudio.currentTime = 0;
     currentAudio = null;
-    console.log("🛑 Playback stopped");
   }
 }
 
@@ -252,6 +263,7 @@ function playAudio(b64) {
   const audio = new Audio(audioSrc);
   
   currentAudio = audio;
+  isProcessing.value = false; // Stop processing state when audio starts
 
   audio.play()
     .then(() => {
@@ -299,5 +311,9 @@ onBeforeUnmount(() => {
 
 .wave {
   animation: wave 2s infinite ease-in-out;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 15px 5px rgba(210, 150, 30, 0.6);
 }
 </style>

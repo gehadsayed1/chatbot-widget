@@ -1,5 +1,5 @@
 <template>
-  <div v-show="chat.isOpen" ref="chatContainer" role="dialog" aria-label="نافذة الدردشة" aria-modal="true" class="fixed z-[9999] bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col
+  <div v-show="chat.isOpen" ref="chatContainer" role="dialog" :aria-label="t('chatWindow')" aria-modal="true" class="fixed z-[9999] bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col
            right-4 bottom-24 w-[92vw] h-[78vh]
            sm:right-6 sm:bottom-25 sm:w-[35vw] sm:h-[85vh] sm:max-w-[500px]">
     <ChatHeader />
@@ -26,8 +26,10 @@ import ChatSuggestions from "./ChatSuggestions.vue";
 import ChatFooter from "./ChatFooter.vue";
 import VoiceCall from "./VoiceCall.vue";
 import { useChatStore } from "../stores/chat";
+import { useI18n } from "vue-i18n";
 
 const chat = useChatStore();
+const { t } = useI18n();
 const chatContainer = ref(null);
 
 

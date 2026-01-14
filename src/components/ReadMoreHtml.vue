@@ -1,24 +1,21 @@
 <template>
-  <div class="read-more-html-container relative">
+  <div class="read-more-html-container">
     <div
       ref="contentRef"
-      class="content-wrapper transition-all duration-300 ease-in-out relative overflow-hidden"
-      :class="{ 'expanded': expanded }"
-      :style="{ maxHeight: expanded ? 'none' : maxHeight }"
+      class="content-wrapper transition-all duration-300 ease-in-out"
+      :class="{ 'line-clamp-none': expanded, 'line-clamp-custom': !expanded }"
     >
-      <div ref="slotContent">
-        <slot></slot>
-      </div>
-      
-
+      <slot></slot>
+  
     </div>
 
     <button
       v-if="showButton"
       @click="toggle"
-      class="mt-2 text-primary-dark text-sm font-semibold hover:underline focus:outline-none flex items-center gap-1"
+      class="text-primary-dark text-sm cursor-pointer hover:underline focus:outline-none flex items-center gap-1 bg-transparent border-none shadow-none mt-1"
+      style="background-color: transparent !important; box-shadow: none !important;"
     >
-      <span>{{ expanded ? 'إخفاء' : 'عرض المزيد' }}</span>
+      <span>{{ expanded ? t('showLess') : t('showMore') }}</span>
       <i :class="expanded ? 'fa-solid fa-angle-up' : 'fa-solid fa-angle-down'"></i>
     </button>
   </div>
@@ -26,9 +23,11 @@
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
-
   maxHeight: {
     type: String,
     default: '350px'
@@ -42,9 +41,8 @@ const contentRef = ref(null);
 const checkHeight = async () => {
   await nextTick();
   if (contentRef.value) {
-    // Parse the pixel value from maxHeight (e.g., '120px' -> 120)
     const maxPixels = parseInt(props.maxHeight, 10);
-    if (!isNaN(maxPixels) && contentRef.value.scrollHeight > maxPixels + 10) { // +10 buffer
+    if (!isNaN(maxPixels) && contentRef.value.scrollHeight > maxPixels + 10) {
       showButton.value = true;
     } else {
       showButton.value = false;
@@ -60,9 +58,18 @@ onMounted(() => {
   checkHeight();
 });
 
-
 </script>
 
 <style scoped>
+.line-clamp-custom {
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
+.line-clamp-none {
+  display: block;
+}
 </style>

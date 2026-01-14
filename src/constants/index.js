@@ -5,11 +5,12 @@ export const CHAT_CONFIG = {
 };
 
 export const SUGGESTIONS = [
-  { text: "استفسار", icon: "fa-solid fa-question-circle" },
-  { text: "شكوى", icon: "fa-solid fa-exclamation-triangle" },
-  { text: "اقتراح", icon: "fa-solid fa-lightbulb" },
-  { text: "استعلام عن شكوى", icon: "fa-solid fa-magnifying-glass" },
-  { text: "اتصل بنا", icon: "fa-solid fa-phone" },
+  { text: "suggestion_query", icon: "fa-solid fa-question-circle" },
+  { text: "suggestion_complaint", icon: "fa-solid fa-exclamation-triangle" },
+  { text: "suggestion_suggestion", icon: "fa-solid fa-lightbulb" },
+  { text: "suggestion_complaintStatus", icon: "fa-solid fa-magnifying-glass" },
+  { text: "suggestion_currency", icon: "fa-solid fa-money-bill-trend-up" },
+  { text: "suggestion_contactUs", icon: "fa-solid fa-phone" },
 ];
 
 export const THEME_COLORS = {
@@ -78,9 +79,11 @@ export const BRANCH_KEYWORDS = [
   "مكان الفروع",
   "لوكيشن المقر",
   "لوكيشن الفروع",
+  "ما هي فروع الهيئه",
 
   "hq address",
   "headquarters location",
+  "hq location",
   "where is the hq",
   "where is headquarters",
   "branch address",
