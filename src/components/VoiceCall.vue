@@ -17,7 +17,7 @@
         </div>
 
         <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-primary-dark shadow-lg relative z-10 bg-white transition-all duration-300"
-             :class="{ 'wave shadow-glow': isSpeaking }">
+             :class="{ 'wave shadow-glow': isSpeaking || isPlaying }">
           <img src="https://t3.ftcdn.net/jpg/01/27/80/10/240_F_127801046_ArruIMeKVplhBv4xDPPoqkXSZQBIWgKW.jpg"
             class="w-full h-full object-cover" alt="صورة المتصل" />
         </div>
@@ -255,6 +255,8 @@ function stopPlayback() {
   }
 }
 
+const isPlaying = ref(false);
+
 function playAudio(b64) {
   // Stop previous audio before playing new one
   stopPlayback();
@@ -268,17 +270,23 @@ function playAudio(b64) {
   audio.play()
     .then(() => {
       console.log("✅ Audio playing");
+      isPlaying.value = true;
     })
-    .catch((err) => console.error("❌ Play error:", err));
+    .catch((err) => {
+      console.error("❌ Play error:", err)
+      isPlaying.value = false;
+    });
 
   audio.onended = () => {
     console.log("✅ Audio ended");
     currentAudio = null;
+    isPlaying.value = false;
   };
 
   audio.onerror = (err) => {
     console.error("❌ Audio error:", err);
     currentAudio = null;
+    isPlaying.value = false;
   };
 }
 

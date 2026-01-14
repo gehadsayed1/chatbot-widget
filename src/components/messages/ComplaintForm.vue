@@ -1,41 +1,30 @@
 <template>
-  <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 mt-2 w-full max-w-md">
-    <div class="text-sm font-bold text-primary mb-3 border-b pb-2">
-      <i class="fa-solid fa-clipboard-question ml-2"></i>
-      {{ t('complaintForm.title') }}
+  <div class="bg-[#FFF8E1] rounded-3xl p-2   mt-2 w-full max-w-[270px] mx-auto">
+    <div class="text-center font-bold text-[#4A4A4A] mb-5 text-[15px]">
+      {{ t('complaintForm.instruction') }}
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-3 px-2">
-      <div>
-        <label class="block text-xs font-medium text-gray-700 mb-1">
-          {{ t('complaintForm.taxNumber') }}
-        </label>
-        <input
-          v-model="taxNum"
-          type="text"
-          required
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-right"
-          placeholder="123456..."
-        />
-      </div>
+    <form @submit.prevent="handleSubmit" class="space-y-4">
+      <input
+        v-model="complaintNum"
+        type="text"
+        required
+        class="w-full px-4 py-3 text-sm bg-transparent border border-[#d2961e]/40 rounded-2xl focus:outline-none focus:border-[#d2961e] focus:bg-white transition-all text-right placeholder-[#9CA3AF] text-gray-700"
+        :placeholder="t('complaintForm.complaintNumber')"
+      />
 
-      <div>
-        <label class="block text-xs font-medium text-gray-700 mb-1">
-          {{ t('complaintForm.complaintNumber') }}
-        </label>
-        <input
-          v-model="complaintNum"
-          type="text"
-          required
-          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-right"
-          placeholder="33..."
-        />
-      </div>
+      <input
+        v-model="taxNum"
+        type="text"
+        required
+        class="w-full px-4 py-3 text-sm bg-transparent border border-[#d2961e]/40 rounded-2xl focus:outline-none focus:border-[#d2961e] focus:bg-white transition-all text-right placeholder-[#9CA3AF] text-gray-700"
+        :placeholder="t('complaintForm.taxNumber')"
+      />
 
       <button
         type="submit"
         :disabled="loading || !taxNum || !complaintNum"
-        class="w-full bg-primary text-white py-2 rounded-lg text-sm font-bold hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        class="w-full bg-[#d2961e] text-white py-3 rounded-2xl text-sm font-bold hover:bg-[#b5893d] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
       >
         <span v-if="loading">
             <i class="fa-solid fa-spinner fa-spin"></i>

@@ -67,9 +67,10 @@
     },
     "complaintForm": {
         "title": "Complaint Status Inquiry",
-        "taxNumber": "Tax ID Number",
-        "complaintNumber": "Complaint / Report Number",
-        "submit": "Inquire",
+        "instruction": "Please enter the following data:",
+        "taxNumber": "Tax Number",
+        "complaintNumber": "Complaint Number",
+        "submit": "Submit",
         "resultTitle": "Complaint Details",
         "fields": {
             "date": "Date",

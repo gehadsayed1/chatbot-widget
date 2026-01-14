@@ -230,7 +230,7 @@
       </div>
 
       <!-- Suggestions -->
-      <div v-if="msg.suggestions && msg.suggestions.length > 0" class="flex flex-wrap items-center justify-center gap-2 mt-1">
+      <div v-if="msg.suggestions && msg.suggestions.length > 0" class="flex flex-wrap items-center justify-center gap-2 p-2 mt-1">
         <button
           v-for="(suggestion, sIdx) in msg.suggestions"
           :key="sIdx"
