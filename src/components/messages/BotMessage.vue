@@ -10,10 +10,10 @@
     <div class="flex flex-col gap-2 max-w-[80%]">
       <div
         role="article"
-        class="message-bubble from-bot bg-gradient-to-br from-primary-light to-primary-light border border-primary/20 text-gray-800 rounded-2xl px-3 py-3 shadow break-words whitespace-pre-line"
+        class="message-bubble from-bot bg-gradient-to-br from-primary-light to-primary-light border border-primary/20 text-gray-800 rounded-2xl px-3 py-3 shadow break-words"
       >
         <template v-if="msg.error">
-          <div class="text-red-600 font-bold text-sm">
+          <div class="text-red-600 font-bold text-sm whitespace-pre-line">
             {{ msg.text }}
           </div>
         </template>
@@ -53,7 +53,7 @@
 
         <template v-else-if="msg.links && msg.links.length > 0">
           <div>
-            <span>{{ msg.text }}</span>
+            <span class="whitespace-pre-line">{{ msg.text }}</span>
             <div class="mt-2 flex flex-col gap-2">
               <a
                 v-for="(linkObj, idx) in msg.links"
@@ -71,7 +71,7 @@
         </template>
 
         <template v-else-if="msg.link">
-          <span>{{ msg.text }} </span>
+          <span class="whitespace-pre-line">{{ msg.text }} </span>
           <a
             :href="msg.link"
             target="_blank"
@@ -269,6 +269,7 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
+  breaks: true,
 });
 
 const defaultRender =
@@ -289,8 +290,27 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
 
 const renderMarkdown = (content) => {
   if (!content) return "";
-  return md.render(content);
+
+  let cleaned = content
+    // Fix numbered lists: ensure they start at beginning of line or after newline
+    .replace(/^ +(\d+\.)/gm, "$1")
+    
+    // Remove bullet points from Bold Titles (e.g. "- **Title:**" -> "**Title:**")
+    // This prevents titles from having a bullet point
+    .replace(/^\s*-\s+(\*\*.*\*\*)/gm, "$1")
+
+    // Ensure proper spacing for lists but avoid breaking lines inside paragraphs
+    .replace(/([^\n])\n(\d+\.)/g, "$1\n\n$2")
+
+    // Fix bullet points
+    .replace(/^\s+(-|\*)\s+/gm, "$1 ")
+
+    // Remove excessive blank lines
+    .replace(/\n{3,}/g, "\n\n");
+
+  return md.render(cleaned);
 };
+
 
 // Sources Logic
 const expanded = ref(false);
@@ -299,14 +319,14 @@ const toggleSources = () => {
 };
 </script>
 
-<style scoped>
+<style >
 .contact-card {
   width: 100%;
   display: block;
   text-align: right;
   direction: rtl;
   font-size: 15px;
-  line-height: 1.6; /* Increased for better readability */
+  line-height: 1.8;
   color: #444;
   white-space: normal !important;
 }
@@ -320,5 +340,66 @@ const toggleSources = () => {
 /* Add spacing between paragraphs if they exist */
 .contact-card p {
   margin-bottom: 0.5rem;
+}
+
+.contact-card ul {
+  list-style-type: disc;
+  padding-inline-start: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-card ol {
+  list-style-type: decimal;
+  padding-inline-start: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-card li {
+  margin-bottom: 0.25rem;
+}
+
+.contact-card strong {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.markdown-body {
+  white-space: normal !important;
+}
+
+.markdown-body ol,
+.markdown-body ul {
+  margin: 0.5rem 0;
+  padding-inline-start: 1.5rem; /* Ensure space for numbers outside */
+  list-style-position: outside !important;
+}
+
+.markdown-body ol {
+  list-style-type: decimal !important;
+}
+
+.markdown-body ul {
+  list-style-type: disc !important;
+}
+
+.markdown-body li {
+  margin: 0.25rem 0;
+  display: list-item !important; /* Ensure it behaves as a list item so marker shows */
+  line-height: 1.6;
+}
+
+.markdown-body li::marker {
+  font-weight: bold;
+  color: var(--color-primary-dark);
+}
+
+.markdown-body p {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+}
+
+.markdown-body strong {
+  font-weight: 700;
+  color: var(--color-primary-dark);
 }
 </style>
