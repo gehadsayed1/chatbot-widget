@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { ref } from "vue";
 import axios from "axios";
 import { useChatUiStore } from "./chatUi";
 import { useChatSessionStore } from "./chatSession";
@@ -12,6 +13,10 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
   const session = useChatSessionStore();
   const messagesStore = useChatMessagesStore();
 
+  /* State for controlling requests */
+  const abortController = ref(null);
+  const isLoading = ref(false);
+
   const clearSession = () => {
     session.clearSessionState();
     messagesStore.clearMessages();
@@ -21,8 +26,28 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
     }
   };
 
+  const stopGeneration = () => {
+    if (abortController.value) {
+      abortController.value.abort();
+      abortController.value = null;
+    }
+
+    // Remove the loading message if it exists
+    const lastMsg = messagesStore.messages[messagesStore.messages.length - 1];
+    if (lastMsg && lastMsg.loading) {
+      messagesStore.messages.pop();
+    }
+
+    isLoading.value = false;
+  };
+
   const sendMessage = async (userText) => {
     if (!userText || !userText.toString().trim()) return;
+
+    // Abort previous request if active
+    if (isLoading.value) {
+      stopGeneration();
+    }
 
     const text = userText.toString().trim();
     messagesStore.addUserMessage(text);
@@ -59,6 +84,9 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         timestamp: Date.now(),
       }) - 1;
 
+    isLoading.value = true;
+    abortController.value = new AbortController();
+
     try {
       const payload = {
         question: text,
@@ -66,7 +94,9 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         history: messagesStore.getChatHistory().slice(0, -1),
       };
 
-      const response = await axios.post(`${API_BASE_URL}/api/chat`, payload);
+      const response = await axios.post(`${API_BASE_URL}/api/chat`, payload, {
+        signal: abortController.value.signal,
+      });
       const data = response.data;
 
       if (messagesStore.messages[typingIndex]) {
@@ -80,6 +110,12 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         language: session.currentLanguage,
       });
     } catch (error) {
+      // If aborted, do nothing (we likely removed the loading msg in stopGeneration)
+      if (axios.isCancel(error)) {
+        console.log("Request canceled");
+        return;
+      }
+
       if (messagesStore.messages[typingIndex])
         messagesStore.messages.splice(typingIndex, 1);
       console.error("Chat Error:", error);
@@ -87,17 +123,29 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         text: i18n.global.t("systemBusy"),
         error: true,
       });
+    } finally {
+      isLoading.value = false;
+      abortController.value = null;
     }
   };
 
   const sendVoiceMessage = async (audioBlob) => {
+    // Abort previous request if active
+    if (isLoading.value) {
+      stopGeneration();
+    }
+
     const formData = new FormData();
     formData.append("file", audioBlob, "recording.webm");
     formData.append("language", session.currentLanguage);
 
+    isLoading.value = true;
+    abortController.value = new AbortController();
+
     try {
       const response = await axios.post(`${API_BASE_URL}/api/voice`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        signal: abortController.value.signal,
       });
 
       const data = response.data;
@@ -116,12 +164,19 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
 
       return data;
     } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log("Voice Request canceled");
+        return null;
+      }
       console.error("Voice Error:", error);
       messagesStore.addBotMessage({
         text: i18n.global.t("voiceFailed"),
         error: true,
       });
       return null;
+    } finally {
+      isLoading.value = false;
+      abortController.value = null;
     }
   };
 
@@ -132,6 +187,8 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         loading: true,
         timestamp: Date.now(),
       }) - 1;
+
+    isLoading.value = true;
 
     try {
       const url = `${COMPLAINT_API_URL}/${taxNum}/${complaintNum}`;
@@ -163,6 +220,8 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         text: i18n.global.t("connectionError"),
         error: true,
       });
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -171,5 +230,7 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
     sendMessage,
     sendVoiceMessage,
     inquireComplaint,
+    stopGeneration,
+    isLoading,
   };
 });

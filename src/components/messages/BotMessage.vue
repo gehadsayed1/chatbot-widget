@@ -235,7 +235,8 @@
           v-for="(suggestion, sIdx) in msg.suggestions"
           :key="sIdx"
           @click="chat.sendMessage(suggestion)"
-          class="px-2 py-1 text-xs font-bold text-primary border border-primary/30 rounded-full hover:bg-primary hover:text-white transition-all bg-white/50 backdrop-blur-sm cursor-pointer"
+          :disabled="chat.isLoading"
+          class="px-2 py-1 text-xs font-bold text-primary border border-primary/30 rounded-full hover:bg-primary hover:text-white transition-all bg-white/50 backdrop-blur-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary"
         >
           {{ suggestion }}
         </button>

@@ -14,6 +14,7 @@ export const useChatStore = defineStore("chat", () => {
     ...storeToRefs(ui),
     ...storeToRefs(session),
     ...storeToRefs(messagesStore),
+    ...storeToRefs(actions),
 
     // Actions
     toggleChat: ui.toggleChat,
@@ -35,5 +36,6 @@ export const useChatStore = defineStore("chat", () => {
     sendMessage: actions.sendMessage,
     sendVoiceMessage: actions.sendVoiceMessage,
     inquireComplaint: actions.inquireComplaint,
+    stopGeneration: actions.stopGeneration,
   };
 });

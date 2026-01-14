@@ -6,7 +6,8 @@
     <button
       v-for="s in suggestions"
       :key="s.text"
-      class="suggest cursor-pointer px-3 py-1.5 rounded-full border border-primary font-semibold text-primary text-xs relative overflow-hidden transition-all duration-300 hover:scale-[1.03]"
+      :disabled="chat.isLoading"
+      class="suggest cursor-pointer px-3 py-1.5 rounded-full border border-primary font-semibold text-primary text-xs relative overflow-hidden transition-all duration-300 hover:scale-[1.03] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
       @click="handleSuggestion(s)"
     >
       <span class="relative z-10 flex items-center gap-2">

@@ -12,7 +12,13 @@
       <i class="fa-solid fa-microphone" aria-hidden="true"></i>
     </button>
 
-    <button type="button" @click="handleSend" :aria-label="t('sendButton')" :disabled="!message.trim()"
+    <button v-if="chat.isLoading && !message.trim()" type="button" @click="chat.stopGeneration" aria-label="Stop generation"
+      class="flex items-center justify-center w-11 h-11 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition shadow-sm border border-red-200"
+      title="Stop generation">
+      <i class="fa-solid fa-square text-lg"></i>
+    </button>
+
+    <button v-else type="button" @click="handleSend" :aria-label="t('sendButton')" :disabled="!message.trim()"
       class="flex items-center gap-2 cursor-pointer bg-gradient-to-br from-primary to-primary-dark text-white font-semibold px-4 py-2 rounded-full shadow hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
       <span>{{ t('sendButton') }}</span>
       <i class="fa-solid fa-paper-plane transform scale-x-[1]" aria-hidden="true"></i>
