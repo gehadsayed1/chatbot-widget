@@ -54,7 +54,7 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
 
     // Check for Head Keywords locally
     const isHeadInquiry = HEAD_KEYWORDS.some((k) =>
-      text.toLowerCase().includes(k.toLowerCase())
+      text.toLowerCase().includes(k.toLowerCase()),
     );
 
     if (isHeadInquiry) {
@@ -192,14 +192,18 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
     isLoading.value = true;
 
     try {
-      const url = `${COMPLAINT_API_URL}/${taxNum}/${complaintNum}`;
+      const url = `${COMPLAINT_API_URL}/${complaintNum}/${taxNum}`;
 
       console.log("InquireComplaint Called With:");
       console.log("Tax Num:", taxNum);
       console.log("Complaint Num:", complaintNum);
       console.log("Request URL:", url);
 
-      const res = await axios.get(url);
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: "E3F1A6D5-BD91-4B3A-AE2C-51A74C8E8D42",
+        },
+      });
       console.log("Complaint API Response:", res.data);
 
       if (messagesStore.messages[typingIndex]) {
