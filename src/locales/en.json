@@ -29,6 +29,7 @@
     "suggestion_complaint": "Complaint",
     "suggestion_suggestion": "Suggestion",
     "suggestion_complaintStatus": "Complaint Status",
+    "suggestion_inquiry": "Inquiry About Complaint",
     "suggestion_currency": "Exchange Rates",
     "suggestion_contactUs": "Contact Us",
     "contactIntro": "You can contact us:",
@@ -79,6 +80,23 @@
             "status": "Complaint Status",
             "details": "Details",
             "type": "Type"
+        }
+    },
+    "inquiryForm": {
+        "title": "Inquiry About Complaint",
+        "instruction": "Please enter the following details to check your inquiry status:",
+        "mobile": "Mobile Number",
+        "complaintID": "Complaint / Inquiry Number",
+        "submit": "Check Status",
+        "loading": "Searching for your data...",
+        "empty": "The inquiry is currently being reviewed and will be answered as soon as possible",
+        "success": "Response retrieved",
+        "fields": {
+            "complaintID": "Inquiry ID",
+            "type": "Type",
+            "title": "Title",
+            "date": "Date",
+            "answer": "Answer"
         }
     }
 }

@@ -35,7 +35,7 @@ export const useChatMessagesStore = defineStore("chat-messages", () => {
         }
       }
     },
-    { deep: true }
+    { deep: true },
   );
 
   const clearMessages = () => {

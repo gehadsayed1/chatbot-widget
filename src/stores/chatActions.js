@@ -4,7 +4,11 @@ import axios from "axios";
 import { useChatUiStore } from "./chatUi";
 import { useChatSessionStore } from "./chatSession";
 import { useChatMessagesStore } from "./chatMessages";
-import { API_BASE_URL, COMPLAINT_API_URL } from "../constants/apiConfig";
+import {
+  API_BASE_URL,
+  COMPLAINT_API_URL,
+  INQUIRY_API_BASE_URL,
+} from "../constants/apiConfig";
 import { HEAD_KEYWORDS, BRANCH_KEYWORDS } from "../constants";
 import i18n from "../i18n";
 
@@ -239,11 +243,79 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
     }
   };
 
+  const retrieveComplaint = async (complaintID, mobile) => {
+    const typingIndex =
+      messagesStore.messages.push({
+        from: "bot",
+        loading: true,
+        timestamp: Date.now(),
+      }) - 1;
+
+    isLoading.value = true;
+
+    try {
+      const url = `${INQUIRY_API_BASE_URL}/retrieve-complaint?complaintID=GOEIC-${complaintID}&mobile=${mobile}`;
+
+      console.log("Inquiry API Request Details:");
+      console.log("- Base URL (from config):", INQUIRY_API_BASE_URL);
+      console.log("- Full URL (Manual Query):", url);
+
+      const res = await axios.get(url);
+
+      console.log("Inquiry API Full Response:", res);
+      console.log("Inquiry API Data:", res.data);
+
+      if (messagesStore.messages[typingIndex]) {
+        messagesStore.messages.splice(typingIndex, 1);
+      }
+
+      // Mark the inquiry form as submitted
+      const formMsgIndex = messagesStore.messages.findLastIndex(
+        (m) => m.inquiryForm,
+      );
+      if (formMsgIndex !== -1) {
+        messagesStore.messages[formMsgIndex].submitted = true;
+      }
+
+      // 1. Try to find the answer/data in typical API response structures
+      const possibleData = res.data.response || res.data.data || res.data;
+
+      // Check if it's a successful response and has content
+      const hasAnswer =
+        possibleData &&
+        possibleData.answer &&
+        possibleData.answer.trim() !== "";
+
+      if (hasAnswer) {
+        messagesStore.addBotMessage({
+          inquiryResultData: possibleData,
+        });
+      } else {
+        // If no specific "answer" field but the result is an object/array, we might still want to show it
+        // but for this specific request, the requirement is to show the "جاري النظر" message if no answer
+        messagesStore.addBotMessage({
+          text: i18n.global.t("inquiryForm.empty"),
+        });
+      }
+    } catch (err) {
+      if (messagesStore.messages[typingIndex])
+        messagesStore.messages.splice(typingIndex, 1);
+      console.error("retrieveComplaint error:", err);
+      messagesStore.addBotMessage({
+        text: i18n.global.t("connectionError"),
+        error: true,
+      });
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   return {
     clearSession,
     sendMessage,
     sendVoiceMessage,
     inquireComplaint,
+    retrieveComplaint,
     stopGeneration,
     isLoading,
   };

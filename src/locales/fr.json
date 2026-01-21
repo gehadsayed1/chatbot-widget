@@ -29,6 +29,7 @@
     "suggestion_complaint": "Plainte",
     "suggestion_suggestion": "Suggestion",
     "suggestion_complaintStatus": "Statut de la plainte",
+    "suggestion_inquiry": "Suivi de demande",
     "suggestion_currency": "Taux de change",
     "suggestion_contactUs": "Contactez-nous",
     "showMore": "Montrer plus",
@@ -76,6 +77,23 @@
             "status": "Statut de la plainte",
             "details": "Détails",
             "type": "Type"
+        }
+    },
+    "inquiryForm": {
+        "title": "Suivi de demande",
+        "instruction": "Veuillez saisir les informations suivantes pour vérifier l'état de votre demande :",
+        "mobile": "Numéro de mobile",
+        "complaintID": "Numéro de plainte / demande",
+        "submit": "Vérifier",
+        "loading": "Recherche de vos données...",
+        "empty": "La demande est en cours d'examen et une réponse sera apportée dès que possible",
+        "success": "Réponse récupérée",
+        "fields": {
+            "complaintID": "ID de demande",
+            "type": "Type",
+            "title": "Titre",
+            "date": "Date",
+            "answer": "Réponse"
         }
     }
 }

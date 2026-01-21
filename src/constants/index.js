@@ -8,6 +8,7 @@ export const SUGGESTIONS = [
   { text: "suggestion_query", icon: "fa-solid fa-question-circle" },
   { text: "suggestion_complaint", icon: "fa-solid fa-exclamation-triangle" },
   { text: "suggestion_complaintStatus", icon: "fa-solid fa-magnifying-glass" },
+  { text: "suggestion_inquiry", icon: "fa-solid fa-file-circle-question" },
   { text: "suggestion_currency", icon: "fa-solid fa-money-bill-trend-up" },
   { text: "suggestion_contactUs", icon: "fa-solid fa-phone" },
 ];

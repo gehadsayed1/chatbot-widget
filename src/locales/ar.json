@@ -29,6 +29,7 @@
     "suggestion_complaint": "شكوى",
     "suggestion_suggestion": "اقتراح",
     "suggestion_complaintStatus": "استعلام عن شكوى",
+    "suggestion_inquiry": "استعلام عن استفسار",
     "suggestion_currency": "أسعار العملات",
     "suggestion_contactUs": "اتصل بنا",
     "contactIntro": "يمكنك الاتصال:",
@@ -79,6 +80,23 @@
             "status": "حالة الشكوى",
             "details": "التفاصيل",
             "type": "النوع"
+        }
+    },
+    "inquiryForm": {
+        "title": "استعلام عن استفسار",
+        "instruction": "من فضلك أدخل البيانات التالية للاستعلام عن حالة استفسارك:",
+        "mobile": "رقم الموبايل",
+        "complaintID": "رقم الشكوى / الاستفسار",
+        "submit": "استعلام",
+        "loading": "جاري البحث عن بياناتك...",
+        "empty": "جاري النظر في الاستفسار وسيتم الرد في أقرب وقت",
+        "success": "تم الحصول على الإجابة",
+        "fields": {
+            "complaintID": "رقم الاستعلام",
+            "type": "النوع",
+            "title": "العنوان",
+            "date": "التاريخ",
+            "answer": "الإجابة"
         }
     }
 }

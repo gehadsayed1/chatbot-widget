@@ -18,6 +18,7 @@
           <div
             v-for="(msg, index) in chat.messages"
             :key="msg.timestamp || index"
+            :id="'msg-' + index"
           >
             <!-- Bot Message -->
             <BotMessage
@@ -76,12 +77,31 @@ const handleScroll = (event) => {
 const scrollToBottom = async () => {
   await nextTick();
   const chatContainer = document.getElementById("chatMessages");
-  if (chatContainer) {
-    chatContainer.scrollTo({
-      top: chatContainer.scrollHeight,
-      behavior: CHAT_CONFIG.SCROLL_BEHAVIOR,
-    });
+  if (!chatContainer) return;
+
+  const messages = chat.messages;
+  if (messages.length === 0) return;
+
+  const lastMessageIndex = messages.length - 1;
+  const lastMessage = messages[lastMessageIndex];
+
+  // If the last message is from the bot (and NOT loading), scroll to its TOP
+  if (lastMessage.from === "bot" && !lastMessage.loading) {
+    const lastMsgEl = document.getElementById(`msg-${lastMessageIndex}`);
+    if (lastMsgEl) {
+      chatContainer.scrollTo({
+        top: lastMsgEl.offsetTop - 20, // Offset a bit for padding
+        behavior: CHAT_CONFIG.SCROLL_BEHAVIOR,
+      });
+      return;
+    }
   }
+
+  // Otherwise (user message or bot typing), scroll to bottom
+  chatContainer.scrollTo({
+    top: chatContainer.scrollHeight,
+    behavior: CHAT_CONFIG.SCROLL_BEHAVIOR,
+  });
 };
 
 watch(

@@ -36,6 +36,7 @@ export const useChatStore = defineStore("chat", () => {
     sendMessage: actions.sendMessage,
     sendVoiceMessage: actions.sendVoiceMessage,
     inquireComplaint: actions.inquireComplaint,
+    retrieveComplaint: actions.retrieveComplaint,
     stopGeneration: actions.stopGeneration,
   };
 });

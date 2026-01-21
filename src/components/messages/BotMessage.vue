@@ -1,5 +1,5 @@
 <template>
-  <div v-if="(msg.text || msg.html || msg.inquiryData || msg.headImage || msg.branchInfo || (msg.complaintForm && !msg.submitted))" class="flex items-start gap-3 relative z-10 w-full">
+  <div v-if="(msg.text || msg.html || msg.inquiryData || msg.headImage || msg.branchInfo || (msg.complaintForm && !msg.submitted) || (msg.inquiryForm && !msg.submitted) || msg.inquiryResultData)" class="flex items-start gap-3 relative z-10 w-full">
     <img
       class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-primary/30 shadow-sm"
       src="../../assets/logo2.png"
@@ -166,6 +166,14 @@
            <ComplaintForm v-if="!msg.submitted" :loading="msg.loading" />
         </template>
 
+        <template v-else-if="msg.inquiryForm">
+           <InquiryForm v-if="!msg.submitted" />
+        </template>
+
+        <template v-else-if="msg.inquiryResultData">
+           <InquiryResult :data="msg.inquiryResultData" />
+        </template>
+
         <template v-else-if="msg.inquiryData">
            <div class="space-y-4 w-full"> 
              <div v-for="(item, i) in msg.inquiryData" :key="i">
@@ -253,6 +261,8 @@ import ReadMoreHtml from "../ReadMoreHtml.vue";
 import MarkdownIt from "markdown-it";
 import ComplaintForm from "./ComplaintForm.vue";
 import ComplaintResult from "./ComplaintResult.vue";
+import InquiryForm from "./InquiryForm.vue";
+import InquiryResult from "./InquiryResult.vue";
 
 defineProps({
   msg: {

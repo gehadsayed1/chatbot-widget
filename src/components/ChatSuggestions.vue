@@ -71,6 +71,16 @@ const handleSuggestion = async (item) => {
     return;
   }
 
+  if (key === 'suggestion_inquiry') {
+    chat.messages.push({
+      from: "bot",
+      inquiryForm: true,
+      timestamp: Date.now(),
+    });
+    await scrollToBottomLocal();
+    return;
+  }
+
   if (key === 'suggestion_currency') {
     window.open("https://www.cbe.org.eg/ar/economic-research/statistics/exchange-rates", "_blank");
     return;
