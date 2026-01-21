@@ -201,7 +201,7 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
 
       const res = await axios.get(url, {
         headers: {
-          Authorization: "E3F1A6D5-BD91-4B3A-AE2C-51A74C8E8D42",
+          "Portal-Api-Key": "E3F1A6D5-BD91-4B3A-AE2C-51A74C8E8D42",
         },
       });
       console.log("Complaint API Response:", res.data);
