@@ -26,10 +26,8 @@
         :disabled="chat.isLoading || !mobile || !complaintID"
         class="w-full bg-[#d2961e] text-white py-3 rounded-2xl text-sm font-bold hover:bg-[#b5893d] transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
       >
-        <span v-if="chat.isLoading">
-            <i class="fa-solid fa-spinner fa-spin"></i>
-        </span>
-        <span v-else>{{ t('inquiryForm.submit') }}</span>
+    
+        <span >{{ t('inquiryForm.submit') }}</span>
       </button>
     </form>
   </div>
