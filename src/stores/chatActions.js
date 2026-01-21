@@ -210,6 +210,14 @@ export const useChatActionsStore = defineStore("chat-actions", () => {
         messagesStore.messages.splice(typingIndex, 1);
       }
 
+      // Find the message that has the complaintForm and mark it as submitted
+      const formMsgIndex = messagesStore.messages.findLastIndex(
+        (m) => m.complaintForm,
+      );
+      if (formMsgIndex !== -1) {
+        messagesStore.messages[formMsgIndex].submitted = true;
+      }
+
       if (Array.isArray(res.data) && res.data.length > 0) {
         messagesStore.addBotMessage({ inquiryData: res.data });
       } else {

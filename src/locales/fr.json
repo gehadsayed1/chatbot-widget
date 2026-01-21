@@ -31,11 +31,6 @@
     "suggestion_complaintStatus": "Statut de la plainte",
     "suggestion_currency": "Taux de change",
     "suggestion_contactUs": "Contactez-nous",
-    "title": "Demande de statut de plainte",
-    "instruction": "Veuillez saisir les données suivantes :",
-    "taxNumber": "Numéro fiscal",
-    "complaintNumber": "Numéro de plainte",
-    "submit": "Envoyer",
     "showMore": "Montrer plus",
     "showLess": "Montrer moins",
     "visitLink": "Visitez ici",
@@ -66,5 +61,21 @@
         ],
         "moreDetails": "Pour plus de détails et adresses, cliquez ici",
         "moreDetailsLink": "https://www.goeic.gov.eg/en/about-us/contact-us"
+    },
+    "complaintForm": {
+        "title": "Demande de statut de plainte",
+        "instruction": "Veuillez saisir les données suivantes :",
+        "taxNumber": "Numéro fiscal",
+        "complaintNumber": "Numéro de plainte / rapport",
+        "submit": "Envoyer",
+        "resultTitle": "Détails de la plainte",
+        "fields": {
+            "date": "Date",
+            "branch": "Branche",
+            "depName": "Nom du département",
+            "status": "Statut de la plainte",
+            "details": "Détails",
+            "type": "Type"
+        }
     }
 }

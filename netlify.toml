@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/api/*"
+  to = "http://196.219.221.203/callcenterapi/api/:splat"
+  status = 200
+  force = true

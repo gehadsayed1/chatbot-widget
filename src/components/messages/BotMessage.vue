@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-start gap-3 relative z-10 w-full">
+  <div v-if="(msg.text || msg.html || msg.inquiryData || msg.headImage || msg.branchInfo || (msg.complaintForm && !msg.submitted))" class="flex items-start gap-3 relative z-10 w-full">
     <img
       class="w-10 h-10 rounded-full shrink-0 bg-cover bg-center border border-primary/30 shadow-sm"
       src="../../assets/logo2.png"
@@ -163,7 +163,7 @@
         </template>
 
         <template v-else-if="msg.complaintForm">
-           <ComplaintForm :loading="msg.loading" />
+           <ComplaintForm v-if="!msg.submitted" :loading="msg.loading" />
         </template>
 
         <template v-else-if="msg.inquiryData">
