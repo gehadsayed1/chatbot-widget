@@ -61,7 +61,7 @@
                 :href="linkObj.url"
                 target="_blank"
                 rel="noopener"
-                class="inline-flex items-center gap-2 text-primary-dark hover:text-primary underline transition-colors"
+                class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 underline cursor-pointer transition-colors"
               >
                 <i class="fa-solid fa-link text-sm"></i>
                 <span>{{ linkObj.label }}</span>
@@ -76,7 +76,7 @@
             :href="msg.link"
             target="_blank"
             rel="noopener"
-            class="text-primary-dark underline"
+            class="text-blue-600 underline cursor-pointer"
           >
             {{ t('visitLink') }}
           </a>
@@ -101,7 +101,7 @@
             <a
               :href="msg.branchLink"
               target="_blank"
-              class="inline-flex items-center gap-2 text-primary-dark underline"
+              class="inline-flex items-center gap-2 text-blue-600 underline cursor-pointer"
             >
               {{ t('moreBranches') }}
             </a>
@@ -154,7 +154,7 @@
               <a
                 :href="msg.branchInfo.moreDetailsLink"
                 target="_blank"
-                class="block text-xs text-center text-primary-dark hover:text-primary underline py-1"
+                class="block text-xs text-center text-blue-600 hover:text-blue-800 underline cursor-pointer py-1"
               >
                 {{ msg.branchInfo.moreDetails }}
               </a>
@@ -209,7 +209,7 @@
                   :href="source.url"
                   target="_blank"
                   rel="noopener"
-                  class="p-2 bg-primary/10 text-primary-dark text-xs rounded-2xl border border-primary/30 hover:bg-primary/20 transition-all flex flex-col items-start gap-1 h-full text-right"
+                  class="p-2 bg-blue-50 text-blue-600 text-xs rounded-2xl border border-blue-200 hover:bg-blue-100 cursor-pointer transition-all flex flex-col items-start gap-1 h-full text-right"
                 >
                   <div class="flex items-center gap-2 w-full">
                     <i class="fa-solid fa-link text-[10px] shrink-0"></i>
@@ -292,8 +292,8 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
   tokens[idx].attrPush(["target", "_blank"]);
   tokens[idx].attrPush(["rel", "noopener noreferrer"]);
   tokens[idx].attrPush([
-    "style",
-    "color: var(--color-primary-dark); text-decoration: underline;",
+    "class",
+    "text-blue-600 underline cursor-pointer hover:text-blue-800 transition-colors",
   ]);
   return defaultRender(tokens, idx, options, env, self);
 };
