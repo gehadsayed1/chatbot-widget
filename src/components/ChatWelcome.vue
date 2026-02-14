@@ -21,19 +21,19 @@
         <div class="flex gap-4 justify-center flex-wrap">
           <button 
             @click="chat.setLanguage('ar')"
-            class="flex-1 py-3 px-6 min-w-[100px] cursor-pointer rounded-2xl bg-white border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all duration-300 shadow-md transform hover:scale-[1.05]"
+            class="flex-1 py-3 px-6 min-w-[100px] cursor-pointer rounded-2xl bg-white border-2 border-primary text-primary font-bold hover:bg-primary-light hover:text-primary-dark transition-all duration-300 shadow-md transform hover:scale-[1.05]"
           >
             العربية
           </button>
           <button 
             @click="chat.setLanguage('en')"
-            class="flex-1 py-3 px-6 min-w-[100px] cursor-pointer rounded-2xl bg-white border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all duration-300 shadow-md transform hover:scale-[1.05]"
+            class="flex-1 py-3 px-6 min-w-[100px] cursor-pointer rounded-2xl bg-white border-2 border-primary text-primary font-bold hover:bg-primary-light hover:text-primary-dark transition-all duration-300 shadow-md transform hover:scale-[1.05]"
           >
             English
           </button>
           <button 
             @click="chat.setLanguage('fr')"
-            class="flex-1 py-3 px-6 min-w-[100px] cursor-pointer rounded-2xl bg-white border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all duration-300 shadow-md transform hover:scale-[1.05]"
+            class="flex-1 py-3 px-6 min-w-[100px] cursor-pointer rounded-2xl bg-white border-2 border-primary text-primary font-bold hover:bg-primary-light hover:text-primary-dark transition-all duration-300 shadow-md transform hover:scale-[1.05]"
           >
             Français
           </button>

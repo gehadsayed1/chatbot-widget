@@ -1,13 +1,33 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Inter:wght@100..900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
+/* Fix for Shadow DOM: Ensure defaults are applied since 'html' selectors often miss Shadow Root */
+:host {
   --color-primary: #d2961e;
   --color-primary-dark: #b5893d;
   --color-primary-light: #fff8e1;
   --color-primary-hover: #9d7633;
+  --color-primary-rgb: 210 150 30;
+  --color-primary-dark-rgb: 181 137 61;
+  --color-primary-light-rgb: 255 248 225;
+  --color-primary-hover-rgb: 157 118 51;
+  font-family: inherit;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Inter:wght@100..900&display=swap');
+/* Explicitly reset border style for Shadow DOM elements */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
 
 html:lang(ar) {
   font-family: "Cairo", sans-serif;
@@ -21,4 +41,5 @@ html:lang(fr) {
 body {
   font-family: inherit;
 }
+
 

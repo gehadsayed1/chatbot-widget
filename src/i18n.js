@@ -11,7 +11,7 @@ const getSavedLocale = () => {
     if (saved && ["ar", "en", "fr"].includes(saved)) {
       return saved;
     }
-    // Fallback to cookie (if needed for backward combatibility)
+    // Fallback to cookie (if needed for backward compatibility)
     const cookieMatch = document.cookie.match(/goeic_language=([^;]+)/);
     if (cookieMatch && ["ar", "en", "fr"].includes(cookieMatch[1])) {
       return cookieMatch[1];
@@ -26,8 +26,16 @@ const messages = { ar, en, fr };
 // Helper to set direction
 const setDirection = (lang) => {
   const dir = messages[lang].direction || "ltr";
-  document.documentElement.setAttribute("dir", dir);
-  document.documentElement.setAttribute("lang", lang);
+  // Only set document attributes if not in Shadow DOM
+  if (typeof document !== "undefined" && document.documentElement) {
+    try {
+      document.documentElement.setAttribute("dir", dir);
+      document.documentElement.setAttribute("lang", lang);
+    } catch (e) {
+      // Silently fail if in Shadow DOM context
+      console.debug("Running in Shadow DOM, skipping document attributes");
+    }
+  }
   return dir;
 };
 
@@ -38,7 +46,7 @@ const i18n = createI18n({
   legacy: false, // Composition API
   locale: locale,
   fallbackLocale: "ar",
-  globalInjection: true, // Keep it simple to access globally if needed
+  globalInjection: true,
   messages,
 });
 

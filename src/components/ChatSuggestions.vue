@@ -36,17 +36,6 @@ const suggestions = computed(() => {
   }));
 });
 
-const scrollToBottomLocal = async () => {
-  await nextTick();
-  const chatContainer = document.getElementById("chatMessages");
-  if (chatContainer) {
-    chatContainer.scrollTo({
-      top: chatContainer.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-};
-
 const handleSuggestion = async (item) => {
   const text = typeof item === 'string' ? item : item.text;
   const key = item.key; 
@@ -67,7 +56,7 @@ const handleSuggestion = async (item) => {
       complaintForm: true,
       timestamp: Date.now(),
     });
-    await scrollToBottomLocal();
+    // Auto-scroll handled by ChatMessages watcher
     return;
   }
 
@@ -77,7 +66,7 @@ const handleSuggestion = async (item) => {
       inquiryForm: true,
       timestamp: Date.now(),
     });
-    await scrollToBottomLocal();
+    // Auto-scroll handled by ChatMessages watcher
     return;
   }
 
@@ -98,13 +87,12 @@ const handleSuggestion = async (item) => {
       text: `${t('contactIntro')}\n\n**${t('hotlineLabel')}** [${ORG_INFO.HOTLINE}](tel:${ORG_INFO.HOTLINE})\n**${t('phoneLabel')}** [${ORG_INFO.PHONE}](tel:${ORG_INFO.PHONE})`,
       timestamp: Date.now(),
     });
-
-    await scrollToBottomLocal();
+    // Auto-scroll handled by ChatMessages watcher
     return;
   }
 
   chat.sendMessage(text);
-  await scrollToBottomLocal();
+  // Auto-scroll handled by ChatMessages watcher
 };
 </script>
 

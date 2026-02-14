@@ -67,6 +67,12 @@ const { t } = useI18n();
 const chat = useChatStore();
 
 const showScrollButton = ref(false);
+const scrollContainer = ref(null);
+
+// Expose scrollContainer to parent
+defineExpose({
+  scrollContainer
+});
 
 const handleScroll = (event) => {
   const el = event.target;
@@ -76,7 +82,7 @@ const handleScroll = (event) => {
 
 const scrollToBottom = async () => {
   await nextTick();
-  const chatContainer = document.getElementById("chatMessages");
+  const chatContainer = scrollContainer.value;
   if (!chatContainer) return;
 
   const messages = chat.messages;
@@ -87,7 +93,7 @@ const scrollToBottom = async () => {
 
   // If the last message is from the bot (and NOT loading), scroll to its TOP
   if (lastMessage.from === "bot" && !lastMessage.loading) {
-    const lastMsgEl = document.getElementById(`msg-${lastMessageIndex}`);
+    const lastMsgEl = chatContainer.querySelector(`#msg-${lastMessageIndex}`);
     if (lastMsgEl) {
       chatContainer.scrollTo({
         top: lastMsgEl.offsetTop - 20, // Offset a bit for padding
